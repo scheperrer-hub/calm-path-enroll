@@ -27,6 +27,7 @@ export const en: TranslationKeys = {
     home: "Home",
     registration: "Registration",
     privacy: "Privacy",
+    disclaimer: "Disclaimer",
     login: "Login",
     logout: "Logout",
     dashboard: "Dashboard",
@@ -35,7 +36,7 @@ export const en: TranslationKeys = {
   },
   registration: {
     title: "Registration",
-    subtitle: "Vipassana Meditation Retreat",
+    subtitle: "Vipassana Meditation Center",
     intro: "We are pleased about your interest in our retreats. Please fill out the following form to register.",
     steps: {
       person: "Person",
@@ -123,29 +124,93 @@ export const en: TranslationKeys = {
   },
   privacy: {
     title: "Privacy Policy",
-    subtitle: "Information about how we handle your data",
-    intro: "The protection of your personal data is very important to us. Here you can learn how we handle your data.",
-    section1: {
-      title: "Data Collection",
-      content: "We only collect data necessary for organizing the retreats. This includes your contact information, address, and information about your meditation experience.",
+    subtitle: "Buddhayana e.V.",
+    intro: `We are very pleased about your interest in Buddhayana e.V. We are not a commercial company and do not pursue any economic interests with our association. Data protection is of particular importance to the board of Buddhayana e.V.
+
+Use of the Buddhayana e.V. website is generally possible without providing any personal data. However, if a data subject wishes to use special services of our association via our website, processing of personal data may become necessary.
+
+The processing of personal data for our association website on the Internet takes place exclusively via email or telephone conversations. The processing of this data, such as the name, address, email address or telephone number of a data subject, is always carried out in accordance with the General Data Protection Regulation and in accordance with the country-specific data protection regulations applicable to Buddhayana e.V.`,
+    responsibleParty: {
+      title: "Responsible Party",
+      content: `Buddhayana e.V.
+Sonnenhang 14
+85304 Ilmmünster
+Germany
+
+Tel.: 08441 71774
+Email: luctm@gmx.de
+Website: www.buddhayana-ev.com`,
     },
-    section2: {
-      title: "Data Access",
-      content: "Only organizers and teachers directly involved with the retreat have access to your data.",
+    definitions: {
+      title: "Definitions",
+      content: "The privacy policy of Buddhayana e.V. is based on the terminology used by the European legislator when adopting the General Data Protection Regulation (GDPR).",
     },
-    section3: {
-      title: "Data Storage",
-      content: "Your data is stored locally only and is automatically deleted 4 weeks after the retreat ends.",
+    cookies: {
+      title: "Cookies",
+      content: "The Buddhayana e.V. websites do not use cookies.",
     },
-    section4: {
+    deletion: {
+      title: "Routine Deletion",
+      content: "Buddhayana e.V. processes and stores personal data of the data subject only for the period necessary to achieve the purpose of storage. If the storage purpose no longer applies or a prescribed storage period expires, the personal data will be routinely blocked or deleted in accordance with the legal regulations.",
+    },
+    rights: {
       title: "Your Rights",
-      content: "You have the right to request information, correction, or deletion of your data at any time. Contact us directly for this purpose.",
+      content: "You have the right to information, correction, deletion, restriction of processing, data portability and objection. Contact us directly for this purpose.",
     },
+  },
+  disclaimer: {
+    title: "Disclaimer",
+    subtitle: "Buddhayana e.V.",
+    content: `Buddhayana e.V. as well as the meditation teachers and helpers assume no liability, unless it is a matter of intent or gross negligence or injury to life, body or health through intentional or negligent breach of duty.
+
+Course participation is always at your own risk. The courses offered are not therapeutic events and do not replace professional care for the mentally and physically ill. In the case of serious physical or mental illness, the consent of the doctor or therapist is necessary.
+
+No liability can be accepted for personal belongings and valuables.
+
+The teachers and Buddhayana e.V. reserve the right to refuse the participant to participate in the course or to send them home early if they do not follow the rules or instructions or if they endanger themselves or others.`,
   },
   footer: {
     contact: "Contact",
     imprint: "Imprint",
     privacy: "Privacy",
-    copyright: "© 2024 Vipassana Retreat. All rights reserved.",
+    disclaimer: "Disclaimer",
+    copyright: "© 2024 Buddhayana e.V. All rights reserved.",
+    email: "PhraManfred(at)tutanota.com",
+    address: "Stadel 8, 86579 Waidhofen",
+  },
+  admin: {
+    title: "Administration",
+    dashboard: "Dashboard",
+    registrations: "Registrations",
+    board: "Board",
+    users: "Users",
+    settings: "Settings",
+    newRegistrations: "New Registrations",
+    totalRegistrations: "Total Registrations",
+    pendingReview: "Pending Review",
+    confirmed: "Confirmed",
+    myAssignments: "My Assignments",
+    allRegistrations: "All Registrations",
+    notAssigned: "Not Assigned",
+    deletionSoon: "Deletion Soon",
+    status: {
+      new: "New",
+      inReview: "In Review",
+      needInfo: "Need Info",
+      confirmed: "Confirmed",
+      done: "Done",
+      archived: "Archived",
+    },
+    assignTeacher: "Assign Teacher",
+    addNote: "Add Note",
+    notes: "Notes",
+    plannedDeletion: "Planned Deletion",
+    exportCsv: "Export CSV",
+    inviteUser: "Invite User",
+    role: {
+      admin: "Administrator",
+      leader: "Leader",
+      teacher: "Teacher",
+    },
   },
 };

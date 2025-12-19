@@ -61,12 +61,20 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        // Custom nature-inspired colors
+        // Custom Buddhayana-inspired colors
         cream: "hsl(var(--cream))",
-        forest: {
-          DEFAULT: "hsl(var(--forest))",
-          dark: "hsl(var(--forest-dark))",
-          light: "hsl(var(--forest-light))",
+        burgundy: {
+          DEFAULT: "hsl(var(--burgundy))",
+          dark: "hsl(var(--burgundy-dark))",
+          light: "hsl(var(--burgundy-light))",
+        },
+        charcoal: {
+          DEFAULT: "hsl(var(--charcoal))",
+          light: "hsl(var(--charcoal-light))",
+        },
+        "warm-orange": {
+          DEFAULT: "hsl(var(--warm-orange))",
+          light: "hsl(var(--warm-orange-light))",
         },
         sand: {
           DEFAULT: "hsl(var(--sand))",

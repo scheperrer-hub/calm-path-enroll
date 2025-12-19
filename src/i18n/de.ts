@@ -25,6 +25,7 @@ export const de = {
     home: "Startseite",
     registration: "Anmeldung",
     privacy: "Datenschutz",
+    disclaimer: "Haftungsausschluss",
     login: "Anmelden",
     logout: "Abmelden",
     dashboard: "Dashboard",
@@ -33,7 +34,7 @@ export const de = {
   },
   registration: {
     title: "Anmeldung",
-    subtitle: "Vipassana Meditation Retreat",
+    subtitle: "Vipassana Meditationszentrum",
     intro: "Wir freuen uns über Ihr Interesse an unseren Retreats. Bitte füllen Sie das folgende Formular aus, um sich anzumelden.",
     steps: {
       person: "Person",
@@ -121,30 +122,94 @@ export const de = {
   },
   privacy: {
     title: "Datenschutzerklärung",
-    subtitle: "Informationen zum Umgang mit Ihren Daten",
-    intro: "Der Schutz Ihrer persönlichen Daten ist uns sehr wichtig. Hier erfahren Sie, wie wir mit Ihren Daten umgehen.",
-    section1: {
-      title: "Datenerhebung",
-      content: "Wir erheben nur die für die Organisation der Retreats notwendigen Daten. Diese umfassen Ihre Kontaktdaten, Adresse und Informationen zu Ihrer Meditationserfahrung.",
+    subtitle: "Buddhayana e.V.",
+    intro: `Wir freuen uns sehr über Ihr Interesse an dem Buddhayana e.V. Wir sind kein kommerzielles Unternehmen und verfolgen mit unseren Verein keinerlei wirtschaftliches Interesse. Datenschutz hat einen besonders hohen Stellenwert für den Vorstand des Buddhayana e.V.
+
+Eine Nutzung der Internetseiten des Buddhayana e.V. ist grundsätzlich ohne jede Angabe personenbezogener Daten möglich. Sofern eine betroffene Person besondere Services unseres Vereins über unsere Internetseite in Anspruch nehmen möchte, könnte jedoch eine Verarbeitung personenbezogener Daten erforderlich werden.
+
+Die Verarbeitung personenbezogener Daten für unsere Vereinsseite im Internet erfolgt ausschließlich über E-Mail oder Telefongespräche. Die Verarbeitung dieser Daten, wie des Namens, der Anschrift, E-Mail-Adresse oder Telefonnummer einer betroffenen Person, erfolgt stets im Einklang mit der Datenschutz-Grundverordnung und in Übereinstimmung mit den für die Buddhayana e.V. geltenden landesspezifischen Datenschutzbestimmungen.`,
+    responsibleParty: {
+      title: "Verantwortlicher",
+      content: `Buddhayana e.V.
+Sonnenhang 14
+85304 Ilmmünster
+Deutschland
+
+Tel.: 08441 71774
+E-Mail: luctm@gmx.de
+Website: www.buddhayana-ev.com`,
     },
-    section2: {
-      title: "Datenzugriff",
-      content: "Zugriff auf Ihre Daten haben ausschließlich die Organisatoren und Lehrer, die direkt mit dem Retreat befasst sind.",
+    definitions: {
+      title: "Begriffsbestimmungen",
+      content: "Die Datenschutzerklärung des Buddhayana e.V. beruht auf den Begrifflichkeiten, die durch den Europäischen Richtlinien- und Verordnungsgeber beim Erlass der Datenschutz-Grundverordnung (DS-GVO) verwendet wurden.",
     },
-    section3: {
-      title: "Datenspeicherung",
-      content: "Ihre Daten werden ausschließlich lokal gespeichert und automatisch 4 Wochen nach Ende des Retreats gelöscht.",
+    cookies: {
+      title: "Cookies",
+      content: "Die Internetseiten des Buddhayana e.V. verwenden keine Cookies.",
     },
-    section4: {
+    deletion: {
+      title: "Routinemäßige Löschung",
+      content: "Der Buddhayana e.V. verarbeitet und speichert personenbezogene Daten der betroffenen Person nur für den Zeitraum, der zur Erreichung des Speicherungszwecks erforderlich ist. Entfällt der Speicherungszweck oder läuft eine vorgeschriebene Speicherfrist ab, werden die personenbezogenen Daten routinemäßig und entsprechend den gesetzlichen Vorschriften gesperrt oder gelöscht.",
+    },
+    rights: {
       title: "Ihre Rechte",
-      content: "Sie haben jederzeit das Recht auf Auskunft, Berichtigung oder Löschung Ihrer Daten. Kontaktieren Sie uns hierfür direkt.",
+      content: "Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch. Kontaktieren Sie uns hierfür direkt.",
     },
+  },
+  disclaimer: {
+    title: "Haftungsausschluss",
+    subtitle: "Buddhayana e.V.",
+    content: `Der Buddhayana e.V. sowie die Meditationslehrer und Helfer übernehmen keine Haftung, soweit es sich nicht um Vorsatz oder grobe Fahrlässigkeit oder Verletzung des Lebens, des Körpers oder der Gesundheit durch vorsätzliche oder fahrlässige Pflichtverletzung handelt.
+
+Die Kursteilnahme erfolgt immer auf eigene Verantwortung. Die angebotenen Kurse sind keine therapeutischen Veranstaltungen und ersetzen keine professionelle Betreuung psychisch und physisch Erkrankter. Bei schwerwiegenden körperlichen oder geistigen Erkrankungen ist das Einverständnis des Arztes oder Therapeuten notwendig.
+
+Für persönliche Gegenstände und Wertsachen kann nicht gehaftet werden.
+
+Die Lehrer und der Buddhayana e.V. behalten sich das Recht vor, dem Teilnehmer die Kursteilnahme zu versagen oder früher nach Hause zu schicken, falls er nicht den Regeln oder Instruktionen folgt oder er sich oder andere gefährdet.`,
   },
   footer: {
     contact: "Kontakt",
     imprint: "Impressum",
     privacy: "Datenschutz",
-    copyright: "© 2024 Vipassana Retreat. Alle Rechte vorbehalten.",
+    disclaimer: "Haftungsausschluss",
+    copyright: "© 2024 Buddhayana e.V. Alle Rechte vorbehalten.",
+    email: "PhraManfred(at)tutanota.com",
+    address: "Stadel 8, 86579 Waidhofen",
+  },
+  admin: {
+    title: "Administration",
+    dashboard: "Dashboard",
+    registrations: "Anmeldungen",
+    board: "Board",
+    users: "Benutzer",
+    settings: "Einstellungen",
+    newRegistrations: "Neue Anmeldungen",
+    totalRegistrations: "Gesamt Anmeldungen",
+    pendingReview: "Ausstehende Überprüfung",
+    confirmed: "Bestätigt",
+    myAssignments: "Meine Zuweisungen",
+    allRegistrations: "Alle Anmeldungen",
+    notAssigned: "Nicht zugewiesen",
+    deletionSoon: "Löschung bald",
+    status: {
+      new: "Neu",
+      inReview: "In Bearbeitung",
+      needInfo: "Rückfragen",
+      confirmed: "Bestätigt",
+      done: "Erledigt",
+      archived: "Archiviert",
+    },
+    assignTeacher: "Lehrer zuweisen",
+    addNote: "Notiz hinzufügen",
+    notes: "Notizen",
+    plannedDeletion: "Geplante Löschung",
+    exportCsv: "CSV exportieren",
+    inviteUser: "Benutzer einladen",
+    role: {
+      admin: "Administrator",
+      leader: "Leiter",
+      teacher: "Lehrer",
+    },
   },
 };
 
