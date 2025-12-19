@@ -14,16 +14,215 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      notes: {
+        Row: {
+          author_user_id: string
+          created_at: string
+          id: string
+          note_text: string
+          registration_id: string
+        }
+        Insert: {
+          author_user_id: string
+          created_at?: string
+          id?: string
+          note_text: string
+          registration_id: string
+        }
+        Update: {
+          author_user_id?: string
+          created_at?: string
+          id?: string
+          note_text?: string
+          registration_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notes_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: false
+            referencedRelation: "registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      registrations: {
+        Row: {
+          additional_info: string | null
+          address_city: string
+          address_country: string
+          address_house_number: string
+          address_street: string
+          address_zip: string
+          assigned_teacher_user_id: string | null
+          consent_privacy: boolean
+          consent_timestamp: string | null
+          course_basic: boolean | null
+          course_few_days: boolean | null
+          course_retreat: boolean | null
+          created_at: string
+          email: string
+          end_date_basic: string | null
+          end_date_few: string | null
+          end_date_retreat: string | null
+          first_name: string
+          id: string
+          last_name: string
+          phone: string
+          registration_date: string
+          report_language: Database["public"]["Enums"]["report_language"]
+          room_number: string | null
+          start_date_basic: string | null
+          start_date_few: string | null
+          start_date_retreat: string | null
+          status: Database["public"]["Enums"]["registration_status"]
+          vip_basic_teacher: string | null
+          vip_basic_when: string | null
+          vip_basic_where: string | null
+          vip_other_experience: string | null
+        }
+        Insert: {
+          additional_info?: string | null
+          address_city: string
+          address_country: string
+          address_house_number: string
+          address_street: string
+          address_zip: string
+          assigned_teacher_user_id?: string | null
+          consent_privacy?: boolean
+          consent_timestamp?: string | null
+          course_basic?: boolean | null
+          course_few_days?: boolean | null
+          course_retreat?: boolean | null
+          created_at?: string
+          email: string
+          end_date_basic?: string | null
+          end_date_few?: string | null
+          end_date_retreat?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+          phone: string
+          registration_date?: string
+          report_language?: Database["public"]["Enums"]["report_language"]
+          room_number?: string | null
+          start_date_basic?: string | null
+          start_date_few?: string | null
+          start_date_retreat?: string | null
+          status?: Database["public"]["Enums"]["registration_status"]
+          vip_basic_teacher?: string | null
+          vip_basic_when?: string | null
+          vip_basic_where?: string | null
+          vip_other_experience?: string | null
+        }
+        Update: {
+          additional_info?: string | null
+          address_city?: string
+          address_country?: string
+          address_house_number?: string
+          address_street?: string
+          address_zip?: string
+          assigned_teacher_user_id?: string | null
+          consent_privacy?: boolean
+          consent_timestamp?: string | null
+          course_basic?: boolean | null
+          course_few_days?: boolean | null
+          course_retreat?: boolean | null
+          created_at?: string
+          email?: string
+          end_date_basic?: string | null
+          end_date_few?: string | null
+          end_date_retreat?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          phone?: string
+          registration_date?: string
+          report_language?: Database["public"]["Enums"]["report_language"]
+          room_number?: string | null
+          start_date_basic?: string | null
+          start_date_few?: string | null
+          start_date_retreat?: string | null
+          status?: Database["public"]["Enums"]["registration_status"]
+          vip_basic_teacher?: string | null
+          vip_basic_when?: string | null
+          vip_basic_where?: string | null
+          vip_other_experience?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin_or_leader: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "leader" | "teacher"
+      registration_status:
+        | "new"
+        | "in_review"
+        | "need_info"
+        | "confirmed"
+        | "done"
+        | "archived"
+      report_language: "de" | "en"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +349,17 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "leader", "teacher"],
+      registration_status: [
+        "new",
+        "in_review",
+        "need_info",
+        "confirmed",
+        "done",
+        "archived",
+      ],
+      report_language: ["de", "en"],
+    },
   },
 } as const

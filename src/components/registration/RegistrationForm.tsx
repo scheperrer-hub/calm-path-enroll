@@ -10,6 +10,8 @@ import { Step5Review } from './Step5Review';
 import { RegistrationFormData, initialFormData } from './types';
 import { ArrowLeft, ArrowRight, Send, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const STORAGE_KEY = 'vipassana-registration-draft';
 
@@ -83,17 +85,61 @@ export function RegistrationForm() {
   const handleSubmit = async () => {
     if (!validateStep(4)) return;
     setIsSubmitting(true);
-    await new Promise((r) => setTimeout(r, 1500));
-    localStorage.removeItem(STORAGE_KEY);
-    setIsSubmitted(true);
-    setIsSubmitting(false);
+
+    try {
+      const { error } = await supabase.from('registrations').insert({
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        phone: formData.phone,
+        email: formData.email,
+        address_street: formData.street,
+        address_house_number: formData.houseNumber,
+        address_zip: formData.zipCode,
+        address_city: formData.city,
+        address_country: formData.country,
+        vip_basic_when: formData.vipBasicWhen || null,
+        vip_basic_where: formData.vipBasicWhere || null,
+        vip_basic_teacher: formData.vipBasicTeacher || null,
+        vip_other_experience: formData.otherExperience || null,
+        report_language: formData.reportLanguage,
+        course_basic: formData.courseTypes.includes('basic_course'),
+        course_retreat: formData.courseTypes.includes('retreat'),
+        course_few_days: formData.courseTypes.includes('few_days'),
+        start_date_basic: formData.startDateBasic || null,
+        end_date_basic: formData.endDateBasic || null,
+        start_date_retreat: formData.startDateRetreat || null,
+        end_date_retreat: formData.endDateRetreat || null,
+        start_date_few: formData.startDateFew || null,
+        end_date_few: formData.endDateFew || null,
+        room_number: formData.roomNumber || null,
+        additional_info: formData.additionalInfo || null,
+        registration_date: formData.registrationDate || new Date().toISOString().split('T')[0],
+        consent_privacy: formData.privacyConsent,
+        consent_timestamp: new Date().toISOString(),
+      });
+
+      if (error) {
+        console.error('Registration error:', error);
+        toast.error(t('common.error'));
+        return;
+      }
+
+      localStorage.removeItem(STORAGE_KEY);
+      setIsSubmitted(true);
+      toast.success(t('common.success'));
+    } catch (err) {
+      console.error('Submit error:', err);
+      toast.error(t('common.error'));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isSubmitted) {
     return (
       <div className="text-center py-16 animate-fade-in">
-        <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-forest-light/20 flex items-center justify-center">
-          <CheckCircle className="w-10 h-10 text-forest" />
+        <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-primary/20 flex items-center justify-center">
+          <CheckCircle className="w-10 h-10 text-primary" />
         </div>
         <h2 className="font-serif text-3xl text-foreground mb-4">{t('registration.success.title')}</h2>
         <p className="text-muted-foreground mb-8 max-w-md mx-auto">{t('registration.success.message')}</p>
