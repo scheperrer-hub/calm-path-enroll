@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Mail, MapPin } from 'lucide-react';
+import { Mail, MapPin, Settings } from 'lucide-react';
 
 export function Footer() {
   const { t } = useTranslation();
@@ -47,13 +47,22 @@ export function Footer() {
             </nav>
           </div>
 
-          {/* Legal */}
+          {/* Legal + Admin */}
           <div className="space-y-4">
             <h3 className="font-serif text-lg text-warm-orange">{t('footer.contact')}</h3>
             <p className="text-sm text-cream/70">
               Vipassana Meditationszentrum<br />
               {t('footer.address')}
             </p>
+            <div className="pt-2">
+              <Link 
+                to="/login" 
+                className="inline-flex items-center gap-2 text-xs text-cream/40 hover:text-warm-orange transition-colors"
+              >
+                <Settings className="w-3 h-3" />
+                Admin
+              </Link>
+            </div>
           </div>
         </div>
 

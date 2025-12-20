@@ -11,9 +11,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Plus, Loader2 } from 'lucide-react';
+import { ArrowLeft, Plus, Loader2, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import { format, addDays } from 'date-fns';
+import { RegistrationEditDialog } from '@/components/admin/RegistrationEditDialog';
 
 type RegistrationStatus = 'new' | 'in_review' | 'need_info' | 'confirmed' | 'done' | 'archived';
 
@@ -26,6 +27,7 @@ export default function RegistrationDetail() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [newNote, setNewNote] = useState('');
+  const [editOpen, setEditOpen] = useState(false);
 
   const { data: registration, isLoading } = useQuery({
     queryKey: ['registration', id],
@@ -168,6 +170,15 @@ export default function RegistrationDetail() {
           <p className="text-muted-foreground">{registration.email}</p>
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setEditOpen(true)}
+            className="gap-2"
+          >
+            <Pencil className="w-4 h-4" />
+            {t('common.edit')}
+          </Button>
           <Select
             value={registration.status}
             onValueChange={(value) => updateRegistration.mutate({ status: value })}
@@ -363,6 +374,12 @@ export default function RegistrationDetail() {
           </CardContent>
         </Card>
       </div>
+      
+      <RegistrationEditDialog 
+        registration={registration} 
+        open={editOpen} 
+        onOpenChange={setEditOpen} 
+      />
     </div>
   );
 }
