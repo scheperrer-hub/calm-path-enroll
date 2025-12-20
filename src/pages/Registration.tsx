@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Layout } from '@/components/Layout';
 import { RegistrationForm } from '@/components/registration/RegistrationForm';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 export default function Registration() {
   const { t } = useTranslation();
@@ -10,6 +11,9 @@ export default function Registration() {
       <div className="gradient-hero min-h-screen">
         <div className="container-narrow py-12 md:py-20">
           <div className="text-center mb-12">
+            <div className="flex justify-center mb-6">
+              <LanguageSwitcher />
+            </div>
             <h1 className="font-serif text-4xl md:text-5xl text-foreground mb-4">
               {t('registration.title')}
             </h1>

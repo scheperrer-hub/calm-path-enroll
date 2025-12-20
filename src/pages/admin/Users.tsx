@@ -15,14 +15,18 @@ import { toast } from 'sonner';
 
 type AppRole = 'admin' | 'leader' | 'teacher';
 
+const MAIN_ADMIN_EMAIL = 'info@impactink.de';
+
 export default function Users() {
   const { t } = useTranslation();
-  const { userRole } = useAuth();
+  const { userRole, user } = useAuth();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState<AppRole>('teacher');
   const [invitePassword, setInvitePassword] = useState('');
+
+  const isMainAdmin = user?.email === MAIN_ADMIN_EMAIL;
 
   const { data: users, isLoading } = useQuery({
     queryKey: ['users'],
@@ -105,6 +109,9 @@ export default function Users() {
     );
   }
 
+  const canInviteUsers = isMainAdmin;
+  const canEditRoles = isMainAdmin;
+
   const roleColors: Record<AppRole, string> = {
     admin: 'bg-red-100 text-red-800',
     leader: 'bg-purple-100 text-purple-800',
@@ -118,13 +125,14 @@ export default function Users() {
           <h1 className="font-serif text-3xl text-foreground mb-2">{t('admin.users')}</h1>
           <p className="text-muted-foreground">{users?.length || 0} Benutzer</p>
         </div>
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" />
-              {t('admin.inviteUser')}
-            </Button>
-          </DialogTrigger>
+        {canInviteUsers && (
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <Plus className="w-4 h-4" />
+                {t('admin.inviteUser')}
+              </Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Neuen Benutzer erstellen</DialogTitle>
@@ -172,6 +180,7 @@ export default function Users() {
             </div>
           </DialogContent>
         </Dialog>
+        )}
       </div>
 
       <div className="border rounded-lg overflow-hidden">
@@ -206,21 +215,27 @@ export default function Users() {
                     {u.profile?.email || '-'}
                   </TableCell>
                   <TableCell>
-                    <Select
-                      value={u.role}
-                      onValueChange={(role) => updateRole.mutate({ id: u.id, role: role as AppRole })}
-                    >
-                      <SelectTrigger className="w-32">
-                        <Badge className={roleColors[u.role as AppRole]}>
-                          {t(`admin.role.${u.role}`)}
-                        </Badge>
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="teacher">{t('admin.role.teacher')}</SelectItem>
-                        <SelectItem value="leader">{t('admin.role.leader')}</SelectItem>
-                        <SelectItem value="admin">{t('admin.role.admin')}</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    {canEditRoles ? (
+                      <Select
+                        value={u.role}
+                        onValueChange={(role) => updateRole.mutate({ id: u.id, role: role as AppRole })}
+                      >
+                        <SelectTrigger className="w-32">
+                          <Badge className={roleColors[u.role as AppRole]}>
+                            {t(`admin.role.${u.role}`)}
+                          </Badge>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="teacher">{t('admin.role.teacher')}</SelectItem>
+                          <SelectItem value="leader">{t('admin.role.leader')}</SelectItem>
+                          <SelectItem value="admin">{t('admin.role.admin')}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Badge className={roleColors[u.role as AppRole]}>
+                        {t(`admin.role.${u.role}`)}
+                      </Badge>
+                    )}
                   </TableCell>
                 </TableRow>
               ))

@@ -13,6 +13,8 @@ import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+const WEBHOOK_URL = 'https://hook.eu2.make.com/rqeqqhh7jo48n96fq5p42zshvnax2fku';
+
 const STORAGE_KEY = 'vipassana-registration-draft';
 
 export function RegistrationForm() {
@@ -122,6 +124,38 @@ export function RegistrationForm() {
         console.error('Registration error:', error);
         toast.error(t('common.error'));
         return;
+      }
+
+      // Send to webhook as backup
+      try {
+        await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          mode: 'no-cors',
+          body: JSON.stringify({
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            phone: formData.phone,
+            email: formData.email,
+            address: `${formData.street} ${formData.houseNumber}, ${formData.zipCode} ${formData.city}, ${formData.country}`,
+            vip_basic_when: formData.vipBasicWhen,
+            vip_basic_where: formData.vipBasicWhere,
+            vip_basic_teacher: formData.vipBasicTeacher,
+            other_experience: formData.otherExperience,
+            report_language: formData.reportLanguage,
+            course_basic: formData.courseTypes.includes('basic_course'),
+            course_retreat: formData.courseTypes.includes('retreat'),
+            course_few_days: formData.courseTypes.includes('few_days'),
+            start_date_basic: formData.startDateBasic,
+            start_date_retreat: formData.startDateRetreat,
+            start_date_few: formData.startDateFew,
+            end_date_few: formData.endDateFew,
+            additional_info: formData.additionalInfo,
+            submitted_at: new Date().toISOString(),
+          }),
+        });
+      } catch (webhookError) {
+        console.log('Webhook backup sent (no-cors mode)');
       }
 
       localStorage.removeItem(STORAGE_KEY);
