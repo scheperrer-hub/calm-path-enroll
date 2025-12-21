@@ -12,6 +12,7 @@ import { Search, Download, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { de, enUS } from 'date-fns/locale';
+import { buildRegistrationCsv, downloadCsv } from '@/utils/registrationCsv';
 
 type RegistrationStatus = 'new' | 'in_review' | 'need_info' | 'confirmed' | 'done' | 'archived';
 
@@ -65,23 +66,8 @@ export default function Registrations() {
   const exportCSV = () => {
     if (!filteredRegistrations) return;
     
-    const headers = ['Name', 'E-Mail', 'Telefon', 'Stadt', 'Status', 'Erstellt'];
-    const rows = filteredRegistrations.map(r => [
-      `${r.first_name} ${r.last_name}`,
-      r.email,
-      r.phone,
-      r.address_city,
-      r.status,
-      r.created_at,
-    ]);
-
-    const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'anmeldungen.csv';
-    a.click();
+    const csv = buildRegistrationCsv(filteredRegistrations);
+    downloadCsv(csv, 'anmeldungen.csv');
   };
 
   const dateLocale = i18n.language === 'de' ? de : enUS;
