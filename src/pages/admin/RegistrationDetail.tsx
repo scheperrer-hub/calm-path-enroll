@@ -11,10 +11,11 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Plus, Loader2, Pencil } from 'lucide-react';
+import { ArrowLeft, Plus, Loader2, Pencil, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { format, addDays } from 'date-fns';
 import { RegistrationEditDialog } from '@/components/admin/RegistrationEditDialog';
+import { buildRegistrationCsv, buildRegistrationCsvFileName, downloadCsv } from '@/utils/registrationCsv';
 
 type RegistrationStatus = 'new' | 'in_review' | 'need_info' | 'confirmed' | 'done' | 'archived';
 
@@ -151,6 +152,11 @@ export default function RegistrationDetail() {
 
   const deletionDate = calculateDeletionDate();
 
+  const handleDownload = () => {
+    const csv = buildRegistrationCsv([registration]);
+    downloadCsv(csv, buildRegistrationCsvFileName(registration));
+  };
+
   return (
     <div className="p-6 lg:p-8 max-w-4xl">
       <Button
@@ -170,6 +176,15 @@ export default function RegistrationDetail() {
           <p className="text-muted-foreground">{registration.email}</p>
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDownload}
+            className="gap-2"
+          >
+            <Download className="w-4 h-4" />
+            {t('admin.exportCsv')}
+          </Button>
           <Button
             variant="outline"
             size="sm"
