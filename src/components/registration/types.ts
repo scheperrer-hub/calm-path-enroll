@@ -3,7 +3,10 @@ export interface RegistrationFormData {
   firstName: string;
   lastName: string;
   phone: string;
+  phoneCountry: string;
+  phoneE164: string;
   email: string;
+  birthYear: string;
 
   // Step 2 - Address
   street: string;
@@ -11,16 +14,18 @@ export interface RegistrationFormData {
   zipCode: string;
   city: string;
   country: string;
+  addressValidated: boolean;
 
   // Step 3 - Experience
+  hasBasicCourse: boolean;
   vipBasicWhen: string;
   vipBasicWhere: string;
   vipBasicTeacher: string;
   otherExperience: string;
-  reportLanguage: 'de' | 'en';
+  reportLanguage: 'de' | 'en' | 'fr';
 
-  // Step 4 - Course
-  courseTypes: ('basic_course' | 'retreat' | 'few_days')[];
+  // Step 4 - Course (single select now)
+  courseType: 'basic_course' | 'retreat' | 'few_days' | '';
   startDateBasic: string;
   endDateBasic: string;
   startDateRetreat: string;
@@ -28,8 +33,6 @@ export interface RegistrationFormData {
   startDateFew: string;
   endDateFew: string;
   additionalInfo: string;
-  roomNumber: string;
-  registrationDate: string;
 
   // Step 5 - Consent
   privacyConsent: boolean;
@@ -39,18 +42,23 @@ export const initialFormData: RegistrationFormData = {
   firstName: '',
   lastName: '',
   phone: '',
+  phoneCountry: 'DE',
+  phoneE164: '',
   email: '',
+  birthYear: '',
   street: '',
   houseNumber: '',
   zipCode: '',
   city: '',
   country: '',
+  addressValidated: false,
+  hasBasicCourse: false,
   vipBasicWhen: '',
   vipBasicWhere: '',
   vipBasicTeacher: '',
   otherExperience: '',
   reportLanguage: 'de',
-  courseTypes: [],
+  courseType: '',
   startDateBasic: '',
   endDateBasic: '',
   startDateRetreat: '',
@@ -58,7 +66,9 @@ export const initialFormData: RegistrationFormData = {
   startDateFew: '',
   endDateFew: '',
   additionalInfo: '',
-  roomNumber: '',
-  registrationDate: new Date().toISOString().split('T')[0],
   privacyConsent: false,
 };
+
+// Date constraints for the retreat
+export const COURSE_DATE_MIN = '2025-08-19';
+export const COURSE_DATE_MAX = '2025-09-03';

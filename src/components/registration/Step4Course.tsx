@@ -3,8 +3,8 @@ import { addDays, format, parseISO } from 'date-fns';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { RegistrationFormData } from './types';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { RegistrationFormData, COURSE_DATE_MIN, COURSE_DATE_MAX } from './types';
 import { cn } from '@/lib/utils';
 
 interface Step4CourseProps {
@@ -18,12 +18,31 @@ type CourseType = 'basic_course' | 'retreat' | 'few_days';
 export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
   const { t } = useTranslation();
 
-  const toggleCourseType = (courseType: CourseType) => {
-    const current = data.courseTypes;
-    const updated = current.includes(courseType)
-      ? current.filter((c) => c !== courseType)
-      : [...current, courseType];
-    updateData({ courseTypes: updated });
+  const handleCourseTypeChange = (courseType: CourseType) => {
+    // Clear all date fields when changing course type
+    const updates: Partial<RegistrationFormData> = {
+      courseType,
+      startDateBasic: '',
+      endDateBasic: '',
+      startDateRetreat: '',
+      endDateRetreat: '',
+      startDateFew: '',
+      endDateFew: '',
+    };
+
+    // Auto-fill for basic course
+    if (courseType === 'basic_course') {
+      updates.startDateBasic = COURSE_DATE_MIN;
+      updates.endDateBasic = COURSE_DATE_MAX;
+    }
+    
+    // Auto-fill for retreat
+    if (courseType === 'retreat') {
+      updates.startDateRetreat = '2025-08-22';
+      updates.endDateRetreat = COURSE_DATE_MAX;
+    }
+
+    updateData(updates);
   };
 
   const calculateEndDate = (startDate: string, days: number): string => {
@@ -37,18 +56,17 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
     }
   };
 
-  // Auto-calculate end dates
   const handleBasicStartChange = (value: string) => {
     updateData({
       startDateBasic: value,
-      endDateBasic: calculateEndDate(value, 15), // 16 days = start + 15
+      endDateBasic: calculateEndDate(value, 15),
     });
   };
 
   const handleRetreatStartChange = (value: string) => {
     updateData({
       startDateRetreat: value,
-      endDateRetreat: calculateEndDate(value, 12), // 13 days = start + 12
+      endDateRetreat: calculateEndDate(value, 12),
     });
   };
 
@@ -81,45 +99,54 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
         </p>
       </div>
 
-      {/* Course Type Selection */}
+      {/* Course Type Selection - Radio Group (Single Select) */}
       <div className="space-y-4">
         <Label className="form-label">{t('registration.step4.courseType')} *</Label>
-        {errors.courseTypes && (
-          <p className="text-sm text-destructive">{errors.courseTypes}</p>
+        {errors.courseType && (
+          <p className="text-sm text-destructive">{errors.courseType}</p>
         )}
         
-        <div className="space-y-3">
+        <RadioGroup
+          value={data.courseType}
+          onValueChange={(value) => handleCourseTypeChange(value as CourseType)}
+          className="space-y-3"
+        >
           {courseOptions.map((option) => (
             <div
               key={option.type}
               className={cn(
                 "card-elevated p-4 cursor-pointer transition-all duration-200",
-                data.courseTypes.includes(option.type) && "ring-2 ring-primary bg-secondary/50"
+                data.courseType === option.type && "ring-2 ring-primary bg-secondary/50"
               )}
-              onClick={() => toggleCourseType(option.type)}
+              onClick={() => handleCourseTypeChange(option.type)}
             >
               <div className="flex items-start gap-4">
-                <Checkbox
-                  checked={data.courseTypes.includes(option.type)}
-                  onCheckedChange={() => toggleCourseType(option.type)}
+                <RadioGroupItem
+                  value={option.type}
+                  id={option.type}
                   className="mt-1"
                 />
                 <div className="flex-1">
-                  <div className="font-medium text-foreground">{option.label}</div>
-                  <div className="text-sm text-muted-foreground">{option.description}</div>
+                  <Label htmlFor={option.type} className="font-medium text-foreground cursor-pointer">
+                    {option.label}
+                  </Label>
+                  <p className="text-sm text-muted-foreground">{option.description}</p>
                 </div>
               </div>
             </div>
           ))}
-        </div>
+        </RadioGroup>
       </div>
 
       {/* Date fields based on selection */}
-      {data.courseTypes.includes('basic_course') && (
+      {data.courseType === 'basic_course' && (
         <div className="card-elevated p-6 animate-slide-up">
           <h3 className="font-serif text-lg text-foreground mb-4">
             {t('registration.step4.basicCourse')}
           </h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            {t('registration.step4.dateRange')}: 19.08.2025 - 03.09.2025
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="startDateBasic" className="form-label">
@@ -128,6 +155,8 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
               <Input
                 id="startDateBasic"
                 type="date"
+                min={COURSE_DATE_MIN}
+                max={COURSE_DATE_MAX}
                 value={data.startDateBasic}
                 onChange={(e) => handleBasicStartChange(e.target.value)}
                 className={`input-field ${errors.startDateBasic ? 'border-destructive' : ''}`}
@@ -152,11 +181,14 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
         </div>
       )}
 
-      {data.courseTypes.includes('retreat') && (
+      {data.courseType === 'retreat' && (
         <div className="card-elevated p-6 animate-slide-up">
           <h3 className="font-serif text-lg text-foreground mb-4">
             {t('registration.step4.retreat')}
           </h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            {t('registration.step4.dateRange')}: 19.08.2025 - 03.09.2025
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="startDateRetreat" className="form-label">
@@ -165,6 +197,8 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
               <Input
                 id="startDateRetreat"
                 type="date"
+                min={COURSE_DATE_MIN}
+                max={COURSE_DATE_MAX}
                 value={data.startDateRetreat}
                 onChange={(e) => handleRetreatStartChange(e.target.value)}
                 className={`input-field ${errors.startDateRetreat ? 'border-destructive' : ''}`}
@@ -189,11 +223,14 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
         </div>
       )}
 
-      {data.courseTypes.includes('few_days') && (
+      {data.courseType === 'few_days' && (
         <div className="card-elevated p-6 animate-slide-up">
           <h3 className="font-serif text-lg text-foreground mb-4">
             {t('registration.step4.fewDays')}
           </h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            {t('registration.step4.dateRange')}: 19.08.2025 - 03.09.2025
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="startDateFew" className="form-label">
@@ -202,6 +239,8 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
               <Input
                 id="startDateFew"
                 type="date"
+                min={COURSE_DATE_MIN}
+                max={COURSE_DATE_MAX}
                 value={data.startDateFew}
                 onChange={(e) => updateData({ startDateFew: e.target.value })}
                 className={`input-field ${errors.startDateFew ? 'border-destructive' : ''}`}
@@ -217,6 +256,8 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
               <Input
                 id="endDateFew"
                 type="date"
+                min={COURSE_DATE_MIN}
+                max={COURSE_DATE_MAX}
                 value={data.endDateFew}
                 onChange={(e) => updateData({ endDateFew: e.target.value })}
                 className={`input-field ${errors.endDateFew ? 'border-destructive' : ''}`}
@@ -229,8 +270,8 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
         </div>
       )}
 
-      {/* Additional fields */}
-      <div className="space-y-6">
+      {/* Additional info only */}
+      {data.courseType && (
         <div className="space-y-2">
           <Label htmlFor="additionalInfo" className="form-label">
             {t('registration.step4.additionalInfo')}
@@ -243,35 +284,7 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
             placeholder={t('registration.step4.additionalInfoPlaceholder')}
           />
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <Label htmlFor="roomNumber" className="form-label">
-              {t('registration.step4.roomNumber')}
-            </Label>
-            <Input
-              id="roomNumber"
-              value={data.roomNumber}
-              onChange={(e) => updateData({ roomNumber: e.target.value })}
-              className="input-field"
-              placeholder="101"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="registrationDate" className="form-label">
-              {t('registration.step4.registrationDate')}
-            </Label>
-            <Input
-              id="registrationDate"
-              type="date"
-              value={data.registrationDate}
-              onChange={(e) => updateData({ registrationDate: e.target.value })}
-              className="input-field"
-            />
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

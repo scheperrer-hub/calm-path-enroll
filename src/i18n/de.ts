@@ -48,6 +48,7 @@ export const de = {
       description: "Bitte geben Sie Ihre Kontaktdaten ein.",
       firstName: "Vorname",
       lastName: "Nachname",
+      birthYear: "Geburtsjahr",
       phone: "Telefonnummer",
       email: "E-Mail Adresse",
     },
@@ -59,11 +60,19 @@ export const de = {
       zipCode: "Postleitzahl",
       city: "Ort",
       country: "Land",
+      searchAddress: "Adresse suchen",
+      searchPlaceholder: "Straße eingeben...",
+      addressVerified: "Adresse verifiziert",
+      addressNotVerified: "Adresse nicht verifiziert",
+      verifyNow: "Jetzt prüfen",
     },
     step3: {
       title: "Erfahrungen mit Vipassana",
       description: "Erzählen Sie uns von Ihrer bisherigen Meditationserfahrung.",
-      basicRetreat: "Basic Retreat Erfahrung",
+      hasBasicCourse: "Hast du schon einen Grundkurs abgeschlossen?",
+      hasBasicCourseDescription: "Wenn ja, teile uns bitte die Details mit.",
+      noBasicCourse: "Kein vorheriger Grundkurs",
+      basicRetreat: "Grundkurs Details",
       when: "Wann",
       where: "Wo",
       teacher: "Lehrer",
@@ -80,18 +89,17 @@ export const de = {
       description: "Wählen Sie den Kurs und Zeitraum.",
       courseType: "Kursart",
       basicCourse: "Basiskurs",
-      basicCourseDescription: "16 Tage / 15 Nächte",
+      basicCourseDescription: "16 Tage / 15 Nächte (19.08. - 03.09.2025)",
       retreat: "Retreat",
-      retreatDescription: "13 Tage / 12 Nächte",
+      retreatDescription: "13 Tage / 12 Nächte (22.08. - 03.09.2025)",
       fewDays: "Ein paar Tage",
-      fewDaysDescription: "Flexible Dauer",
+      fewDaysDescription: "Flexible Dauer im Zeitraum 19.08. - 03.09.2025",
       startDate: "Startdatum",
       endDate: "Enddatum",
       endDateCalculated: "Enddatum (berechnet)",
+      dateRange: "Verfügbarer Zeitraum",
       additionalInfo: "Zusätzliche Informationen",
       additionalInfoPlaceholder: "Weitere Informationen, die Sie uns mitteilen möchten...",
-      roomNumber: "Zimmernummer (optional)",
-      registrationDate: "Anmeldedatum",
     },
     step5: {
       title: "Überprüfung & Absenden",
@@ -113,7 +121,8 @@ export const de = {
       required: "Dieses Feld ist erforderlich",
       invalidEmail: "Bitte geben Sie eine gültige E-Mail Adresse ein",
       invalidPhone: "Bitte geben Sie eine gültige Telefonnummer ein",
-      selectCourse: "Bitte wählen Sie mindestens einen Kurs aus",
+      invalidBirthYear: "Bitte geben Sie ein gültiges Geburtsjahr ein",
+      selectCourse: "Bitte wählen Sie einen Kurs aus",
       startDateRequired: "Bitte wählen Sie ein Startdatum",
       endDateRequired: "Bitte wählen Sie ein Enddatum",
       endDateAfterStart: "Das Enddatum muss nach dem Startdatum liegen",
@@ -135,8 +144,7 @@ Sonnenhang 14
 85304 Ilmmünster
 Deutschland
 
-Tel.: 08441 71774
-E-Mail: luctm@gmx.de
+E-Mail: PhraManfred(at)tutanota.com
 Website: www.buddhayana-ev.com`,
     },
     definitions: {
