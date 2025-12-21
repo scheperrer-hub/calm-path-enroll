@@ -50,6 +50,7 @@ export const en: TranslationKeys = {
       description: "Please enter your contact details.",
       firstName: "First Name",
       lastName: "Last Name",
+      birthYear: "Year of Birth",
       phone: "Phone Number",
       email: "Email Address",
     },
@@ -61,10 +62,18 @@ export const en: TranslationKeys = {
       zipCode: "Zip Code",
       city: "City",
       country: "Country",
+      searchAddress: "Search address",
+      searchPlaceholder: "Enter street...",
+      addressVerified: "Address verified",
+      addressNotVerified: "Address not verified",
+      verifyNow: "Verify now",
     },
     step3: {
       title: "Vipassana Experience",
       description: "Tell us about your previous meditation experience.",
+      hasBasicCourse: "Have you completed a basic course?",
+      hasBasicCourseDescription: "If yes, please share the details with us.",
+      noBasicCourse: "No prior basic course",
       basicRetreat: "Basic Retreat Experience",
       when: "When",
       where: "Where",
@@ -82,18 +91,17 @@ export const en: TranslationKeys = {
       description: "Select your course and dates.",
       courseType: "Course Type",
       basicCourse: "Basic Course",
-      basicCourseDescription: "16 days / 15 nights",
+      basicCourseDescription: "16 days / 15 nights (19.08. - 03.09.2025)",
       retreat: "Retreat",
-      retreatDescription: "13 days / 12 nights",
+      retreatDescription: "13 days / 12 nights (22.08. - 03.09.2025)",
       fewDays: "A Few Days",
-      fewDaysDescription: "Flexible duration",
+      fewDaysDescription: "Flexible duration during 19.08. - 03.09.2025",
       startDate: "Start Date",
       endDate: "End Date",
       endDateCalculated: "End Date (calculated)",
+      dateRange: "Available period",
       additionalInfo: "Additional Information",
       additionalInfoPlaceholder: "Any other information you would like to share...",
-      roomNumber: "Room Number (optional)",
-      registrationDate: "Registration Date",
     },
     step5: {
       title: "Review & Submit",
@@ -115,6 +123,7 @@ export const en: TranslationKeys = {
       required: "This field is required",
       invalidEmail: "Please enter a valid email address",
       invalidPhone: "Please enter a valid phone number",
+      invalidBirthYear: "Please enter a valid year of birth",
       selectCourse: "Please select at least one course",
       startDateRequired: "Please select a start date",
       endDateRequired: "Please select an end date",
@@ -137,8 +146,7 @@ Sonnenhang 14
 85304 Ilmmünster
 Germany
 
-Tel.: 08441 71774
-Email: luctm@gmx.de
+Email: PhraManfred(at)tutanota.com
 Website: www.buddhayana-ev.com`,
     },
     definitions: {
