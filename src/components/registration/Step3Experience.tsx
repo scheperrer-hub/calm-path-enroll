@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -20,6 +21,14 @@ interface Step3ExperienceProps {
 export function Step3Experience({ data, updateData, errors }: Step3ExperienceProps) {
   const { t } = useTranslation();
 
+  const handleHasBasicCourseChange = (checked: boolean) => {
+    updateData({ 
+      hasBasicCourse: checked,
+      // Clear fields if unchecked
+      ...(checked ? {} : { vipBasicWhen: '', vipBasicWhere: '', vipBasicTeacher: '' })
+    });
+  };
+
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="text-center mb-8">
@@ -31,52 +40,83 @@ export function Step3Experience({ data, updateData, errors }: Step3ExperiencePro
         </p>
       </div>
 
-      {/* Basic Retreat Experience */}
+      {/* Basic Course Checkbox */}
       <div className="card-elevated p-6">
-        <h3 className="font-serif text-lg text-foreground mb-4">
-          {t('registration.step3.basicRetreat')}
-        </h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="vipBasicWhen" className="form-label">
-              {t('registration.step3.when')}
+        <div className="flex items-start gap-4">
+          <Checkbox
+            id="hasBasicCourse"
+            checked={data.hasBasicCourse}
+            onCheckedChange={handleHasBasicCourseChange}
+            className="mt-1"
+          />
+          <div className="flex-1">
+            <Label htmlFor="hasBasicCourse" className="text-foreground font-medium cursor-pointer">
+              {t('registration.step3.hasBasicCourse')}
             </Label>
-            <Input
-              id="vipBasicWhen"
-              value={data.vipBasicWhen}
-              onChange={(e) => updateData({ vipBasicWhen: e.target.value })}
-              className="input-field"
-              placeholder={t('registration.step3.whenPlaceholder')}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="vipBasicWhere" className="form-label">
-              {t('registration.step3.where')}
-            </Label>
-            <Input
-              id="vipBasicWhere"
-              value={data.vipBasicWhere}
-              onChange={(e) => updateData({ vipBasicWhere: e.target.value })}
-              className="input-field"
-              placeholder={t('registration.step3.wherePlaceholder')}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="vipBasicTeacher" className="form-label">
-              {t('registration.step3.teacher')}
-            </Label>
-            <Input
-              id="vipBasicTeacher"
-              value={data.vipBasicTeacher}
-              onChange={(e) => updateData({ vipBasicTeacher: e.target.value })}
-              className="input-field"
-              placeholder={t('registration.step3.teacherPlaceholder')}
-            />
+            <p className="text-sm text-muted-foreground mt-1">
+              {t('registration.step3.hasBasicCourseDescription')}
+            </p>
           </div>
         </div>
+
+        {/* Conditional fields */}
+        {data.hasBasicCourse && (
+          <div className="mt-6 pt-6 border-t border-border animate-fade-in">
+            <h3 className="font-serif text-lg text-foreground mb-4">
+              {t('registration.step3.basicRetreat')}
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="vipBasicWhen" className="form-label">
+                  {t('registration.step3.when')} *
+                </Label>
+                <Input
+                  id="vipBasicWhen"
+                  value={data.vipBasicWhen}
+                  onChange={(e) => updateData({ vipBasicWhen: e.target.value })}
+                  className={`input-field ${errors.vipBasicWhen ? 'border-destructive' : ''}`}
+                  placeholder={t('registration.step3.whenPlaceholder')}
+                />
+                {errors.vipBasicWhen && (
+                  <p className="text-sm text-destructive">{errors.vipBasicWhen}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="vipBasicWhere" className="form-label">
+                  {t('registration.step3.where')} *
+                </Label>
+                <Input
+                  id="vipBasicWhere"
+                  value={data.vipBasicWhere}
+                  onChange={(e) => updateData({ vipBasicWhere: e.target.value })}
+                  className={`input-field ${errors.vipBasicWhere ? 'border-destructive' : ''}`}
+                  placeholder={t('registration.step3.wherePlaceholder')}
+                />
+                {errors.vipBasicWhere && (
+                  <p className="text-sm text-destructive">{errors.vipBasicWhere}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="vipBasicTeacher" className="form-label">
+                  {t('registration.step3.teacher')} *
+                </Label>
+                <Input
+                  id="vipBasicTeacher"
+                  value={data.vipBasicTeacher}
+                  onChange={(e) => updateData({ vipBasicTeacher: e.target.value })}
+                  className={`input-field ${errors.vipBasicTeacher ? 'border-destructive' : ''}`}
+                  placeholder={t('registration.step3.teacherPlaceholder')}
+                />
+                {errors.vipBasicTeacher && (
+                  <p className="text-sm text-destructive">{errors.vipBasicTeacher}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Other Experience */}
@@ -103,7 +143,7 @@ export function Step3Experience({ data, updateData, errors }: Step3ExperiencePro
         </p>
         <Select
           value={data.reportLanguage}
-          onValueChange={(value: 'de' | 'en') => updateData({ reportLanguage: value })}
+          onValueChange={(value: 'de' | 'en' | 'fr') => updateData({ reportLanguage: value })}
         >
           <SelectTrigger className="input-field w-full md:w-[280px]">
             <SelectValue />
@@ -111,6 +151,7 @@ export function Step3Experience({ data, updateData, errors }: Step3ExperiencePro
           <SelectContent>
             <SelectItem value="de">🇩🇪 Deutsch</SelectItem>
             <SelectItem value="en">🇬🇧 English</SelectItem>
+            <SelectItem value="fr">🇫🇷 Français</SelectItem>
           </SelectContent>
         </Select>
       </div>

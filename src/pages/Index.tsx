@@ -3,13 +3,19 @@ import { useTranslation } from 'react-i18next';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Leaf, Heart, Sun } from 'lucide-react';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 export default function Index() {
   const { t } = useTranslation();
 
   return (
     <Layout>
-      <section className="gradient-hero min-h-[85vh] flex items-center">
+      <section className="gradient-hero min-h-[85vh] flex items-center relative">
+        {/* Language switcher in top right */}
+        <div className="absolute top-4 right-4 z-10">
+          <LanguageSwitcher />
+        </div>
+        
         <div className="container-wide py-20">
           <div className="max-w-3xl mx-auto text-center">
             <div className="flex justify-center gap-4 mb-8 animate-fade-in">

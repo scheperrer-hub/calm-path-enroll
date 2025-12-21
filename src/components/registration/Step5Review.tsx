@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { format, parseISO } from 'date-fns';
-import { de, enUS } from 'date-fns/locale';
+import { de, enUS, fr } from 'date-fns/locale';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { RegistrationFormData } from './types';
@@ -15,12 +15,19 @@ interface Step5ReviewProps {
 
 export function Step5Review({ data, updateData, errors }: Step5ReviewProps) {
   const { t, i18n } = useTranslation();
-  const locale = i18n.language === 'de' ? de : enUS;
+  
+  const getLocale = () => {
+    switch (i18n.language) {
+      case 'de': return de;
+      case 'fr': return fr;
+      default: return enUS;
+    }
+  };
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '-';
     try {
-      return format(parseISO(dateStr), 'dd. MMMM yyyy', { locale });
+      return format(parseISO(dateStr), 'dd. MMMM yyyy', { locale: getLocale() });
     } catch {
       return dateStr;
     }
@@ -30,6 +37,12 @@ export function Step5Review({ data, updateData, errors }: Step5ReviewProps) {
     basic_course: t('registration.step4.basicCourse'),
     retreat: t('registration.step4.retreat'),
     few_days: t('registration.step4.fewDays'),
+  };
+
+  const reportLanguageLabels: Record<string, string> = {
+    de: '🇩🇪 Deutsch',
+    en: '🇬🇧 English',
+    fr: '🇫🇷 Français',
   };
 
   return (
@@ -63,12 +76,16 @@ export function Step5Review({ data, updateData, errors }: Step5ReviewProps) {
             <span className="ml-2 text-foreground font-medium">{data.lastName}</span>
           </div>
           <div>
+            <span className="text-muted-foreground">{t('registration.step1.birthYear')}:</span>
+            <span className="ml-2 text-foreground font-medium">{data.birthYear}</span>
+          </div>
+          <div>
             <span className="text-muted-foreground">{t('registration.step1.email')}:</span>
             <span className="ml-2 text-foreground font-medium">{data.email}</span>
           </div>
           <div>
             <span className="text-muted-foreground">{t('registration.step1.phone')}:</span>
-            <span className="ml-2 text-foreground font-medium">{data.phone}</span>
+            <span className="ml-2 text-foreground font-medium">{data.phoneE164 || data.phone}</span>
           </div>
         </div>
       </div>
@@ -88,6 +105,11 @@ export function Step5Review({ data, updateData, errors }: Step5ReviewProps) {
           {data.zipCode} {data.city}<br />
           {data.country}
         </p>
+        {data.addressValidated && (
+          <p className="text-sm text-green-600 mt-2 flex items-center gap-1">
+            <Check className="w-4 h-4" /> {t('registration.step2.addressVerified')}
+          </p>
+        )}
       </div>
 
       {/* Experience */}
@@ -101,7 +123,7 @@ export function Step5Review({ data, updateData, errors }: Step5ReviewProps) {
           </h3>
         </div>
         <div className="space-y-3 text-sm">
-          {(data.vipBasicWhen || data.vipBasicWhere || data.vipBasicTeacher) && (
+          {data.hasBasicCourse && (data.vipBasicWhen || data.vipBasicWhere || data.vipBasicTeacher) && (
             <div>
               <span className="text-muted-foreground font-medium">{t('registration.step3.basicRetreat')}:</span>
               <p className="text-foreground mt-1">
@@ -110,6 +132,9 @@ export function Step5Review({ data, updateData, errors }: Step5ReviewProps) {
                 {data.vipBasicTeacher && ` • ${t('registration.step3.teacher')}: ${data.vipBasicTeacher}`}
               </p>
             </div>
+          )}
+          {!data.hasBasicCourse && (
+            <p className="text-muted-foreground italic">{t('registration.step3.noBasicCourse')}</p>
           )}
           {data.otherExperience && (
             <div>
@@ -120,7 +145,7 @@ export function Step5Review({ data, updateData, errors }: Step5ReviewProps) {
           <div>
             <span className="text-muted-foreground">{t('registration.step3.reportLanguage')}:</span>
             <span className="ml-2 text-foreground font-medium">
-              {data.reportLanguage === 'de' ? '🇩🇪 Deutsch' : '🇬🇧 English'}
+              {reportLanguageLabels[data.reportLanguage]}
             </span>
           </div>
         </div>
@@ -137,30 +162,24 @@ export function Step5Review({ data, updateData, errors }: Step5ReviewProps) {
           </h3>
         </div>
         <div className="space-y-4">
-          {data.courseTypes.map((courseType) => (
-            <div key={courseType} className="flex items-start gap-3">
+          {data.courseType && (
+            <div className="flex items-start gap-3">
               <Check className="w-5 h-5 text-forest-light mt-0.5" />
               <div>
-                <span className="font-medium text-foreground">{courseTypeLabels[courseType]}</span>
+                <span className="font-medium text-foreground">{courseTypeLabels[data.courseType]}</span>
                 <p className="text-sm text-muted-foreground">
-                  {courseType === 'basic_course' && data.startDateBasic && (
+                  {data.courseType === 'basic_course' && data.startDateBasic && (
                     <>{formatDate(data.startDateBasic)} - {formatDate(data.endDateBasic)}</>
                   )}
-                  {courseType === 'retreat' && data.startDateRetreat && (
+                  {data.courseType === 'retreat' && data.startDateRetreat && (
                     <>{formatDate(data.startDateRetreat)} - {formatDate(data.endDateRetreat)}</>
                   )}
-                  {courseType === 'few_days' && data.startDateFew && (
+                  {data.courseType === 'few_days' && data.startDateFew && (
                     <>{formatDate(data.startDateFew)} - {formatDate(data.endDateFew)}</>
                   )}
                 </p>
               </div>
             </div>
-          ))}
-          {data.roomNumber && (
-            <p className="text-sm">
-              <span className="text-muted-foreground">{t('registration.step4.roomNumber')}:</span>
-              <span className="ml-2 text-foreground">{data.roomNumber}</span>
-            </p>
           )}
           {data.additionalInfo && (
             <div className="pt-2 border-t border-border">
@@ -184,13 +203,14 @@ export function Step5Review({ data, updateData, errors }: Step5ReviewProps) {
             <Label htmlFor="privacyConsent" className="text-sm text-foreground cursor-pointer">
               {t('registration.step5.privacyConsentText')}
             </Label>
-            <Link 
-              to="/privacy" 
-              target="_blank" 
+            <a 
+              href="/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
               className="block mt-2 text-sm text-primary hover:underline"
             >
               {t('registration.step5.privacyLink')} →
-            </Link>
+            </a>
           </div>
         </div>
         {errors.privacyConsent && (

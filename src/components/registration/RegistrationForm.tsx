@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { FormStepper } from './FormStepper';
 import { Step1Person } from './Step1Person';
-import { Step2Address } from './Step2Address';
+import { AddressAutocomplete } from './AddressAutocomplete';
 import { Step3Experience } from './Step3Experience';
 import { Step4Course } from './Step4Course';
 import { Step5Review } from './Step5Review';
@@ -12,6 +12,7 @@ import { ArrowLeft, ArrowRight, Send, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { isValidPhoneNumber } from 'libphonenumber-js';
 
 const WEBHOOK_URL = 'https://hook.eu2.make.com/rqeqqhh7jo48n96fq5p42zshvnax2fku';
 
@@ -29,7 +30,9 @@ export function RegistrationForm() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
-        setFormData(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        // Merge with initial to handle new fields
+        setFormData({ ...initialFormData, ...parsed });
       } catch {}
     }
   }, []);
@@ -47,11 +50,29 @@ export function RegistrationForm() {
 
   const validateStep = (step: number): boolean => {
     const newErrors: Record<string, string> = {};
+    const currentYear = new Date().getFullYear();
 
     if (step === 0) {
       if (!formData.firstName.trim()) newErrors.firstName = t('registration.validation.required');
       if (!formData.lastName.trim()) newErrors.lastName = t('registration.validation.required');
-      if (!formData.phone.trim()) newErrors.phone = t('registration.validation.required');
+      
+      // Birth year validation
+      if (!formData.birthYear.trim()) {
+        newErrors.birthYear = t('registration.validation.required');
+      } else {
+        const year = parseInt(formData.birthYear);
+        if (isNaN(year) || year < 1900 || year > currentYear) {
+          newErrors.birthYear = t('registration.validation.invalidBirthYear');
+        }
+      }
+      
+      // Phone validation with libphonenumber
+      if (!formData.phone.trim()) {
+        newErrors.phone = t('registration.validation.required');
+      } else if (!formData.phoneE164 || !isValidPhoneNumber(formData.phoneE164)) {
+        newErrors.phone = t('registration.validation.invalidPhone');
+      }
+      
       if (!formData.email.trim()) newErrors.email = t('registration.validation.required');
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = t('registration.validation.invalidEmail');
     } else if (step === 1) {
@@ -60,11 +81,18 @@ export function RegistrationForm() {
       if (!formData.zipCode.trim()) newErrors.zipCode = t('registration.validation.required');
       if (!formData.city.trim()) newErrors.city = t('registration.validation.required');
       if (!formData.country.trim()) newErrors.country = t('registration.validation.required');
+    } else if (step === 2) {
+      // Validate experience fields if hasBasicCourse is checked
+      if (formData.hasBasicCourse) {
+        if (!formData.vipBasicWhen.trim()) newErrors.vipBasicWhen = t('registration.validation.required');
+        if (!formData.vipBasicWhere.trim()) newErrors.vipBasicWhere = t('registration.validation.required');
+        if (!formData.vipBasicTeacher.trim()) newErrors.vipBasicTeacher = t('registration.validation.required');
+      }
     } else if (step === 3) {
-      if (formData.courseTypes.length === 0) newErrors.courseTypes = t('registration.validation.selectCourse');
-      if (formData.courseTypes.includes('basic_course') && !formData.startDateBasic) newErrors.startDateBasic = t('registration.validation.startDateRequired');
-      if (formData.courseTypes.includes('retreat') && !formData.startDateRetreat) newErrors.startDateRetreat = t('registration.validation.startDateRequired');
-      if (formData.courseTypes.includes('few_days')) {
+      if (!formData.courseType) newErrors.courseType = t('registration.validation.selectCourse');
+      if (formData.courseType === 'basic_course' && !formData.startDateBasic) newErrors.startDateBasic = t('registration.validation.startDateRequired');
+      if (formData.courseType === 'retreat' && !formData.startDateRetreat) newErrors.startDateRetreat = t('registration.validation.startDateRequired');
+      if (formData.courseType === 'few_days') {
         if (!formData.startDateFew) newErrors.startDateFew = t('registration.validation.startDateRequired');
         if (!formData.endDateFew) newErrors.endDateFew = t('registration.validation.endDateRequired');
       }
@@ -88,36 +116,41 @@ export function RegistrationForm() {
     if (!validateStep(4)) return;
     setIsSubmitting(true);
 
+    const submissionTimestamp = new Date().toISOString();
+
     try {
       const { error } = await supabase.from('registrations').insert({
         first_name: formData.firstName,
         last_name: formData.lastName,
         phone: formData.phone,
+        phone_country: formData.phoneCountry,
+        phone_e164: formData.phoneE164,
+        birth_year: formData.birthYear ? parseInt(formData.birthYear) : null,
         email: formData.email,
         address_street: formData.street,
         address_house_number: formData.houseNumber,
         address_zip: formData.zipCode,
         address_city: formData.city,
         address_country: formData.country,
-        vip_basic_when: formData.vipBasicWhen || null,
-        vip_basic_where: formData.vipBasicWhere || null,
-        vip_basic_teacher: formData.vipBasicTeacher || null,
+        address_validated: formData.addressValidated,
+        has_basic_course: formData.hasBasicCourse,
+        vip_basic_when: formData.hasBasicCourse ? formData.vipBasicWhen : null,
+        vip_basic_where: formData.hasBasicCourse ? formData.vipBasicWhere : null,
+        vip_basic_teacher: formData.hasBasicCourse ? formData.vipBasicTeacher : null,
         vip_other_experience: formData.otherExperience || null,
         report_language: formData.reportLanguage,
-        course_basic: formData.courseTypes.includes('basic_course'),
-        course_retreat: formData.courseTypes.includes('retreat'),
-        course_few_days: formData.courseTypes.includes('few_days'),
+        course_basic: formData.courseType === 'basic_course',
+        course_retreat: formData.courseType === 'retreat',
+        course_few_days: formData.courseType === 'few_days',
         start_date_basic: formData.startDateBasic || null,
         end_date_basic: formData.endDateBasic || null,
         start_date_retreat: formData.startDateRetreat || null,
         end_date_retreat: formData.endDateRetreat || null,
         start_date_few: formData.startDateFew || null,
         end_date_few: formData.endDateFew || null,
-        room_number: formData.roomNumber || null,
         additional_info: formData.additionalInfo || null,
-        registration_date: formData.registrationDate || new Date().toISOString().split('T')[0],
         consent_privacy: formData.privacyConsent,
-        consent_timestamp: new Date().toISOString(),
+        consent_timestamp: submissionTimestamp,
       });
 
       if (error) {
@@ -126,33 +159,65 @@ export function RegistrationForm() {
         return;
       }
 
-      // Send to webhook as backup
+      // Send structured webhook payload
       try {
+        const webhookPayload = {
+          // Personal info
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phoneCountry: formData.phoneCountry,
+          phoneE164: formData.phoneE164,
+          phoneNational: formData.phone,
+          birthYear: formData.birthYear ? parseInt(formData.birthYear) : null,
+          
+          // Address
+          addressStreet: formData.street,
+          addressHouseNumber: formData.houseNumber,
+          addressZip: formData.zipCode,
+          addressCity: formData.city,
+          addressCountry: formData.country,
+          addressRaw: `${formData.street} ${formData.houseNumber}, ${formData.zipCode} ${formData.city}, ${formData.country}`,
+          addressValidated: formData.addressValidated,
+          
+          // Experience (only if has basic course)
+          experienceHasBasicCourse: formData.hasBasicCourse,
+          ...(formData.hasBasicCourse ? {
+            experienceWhen: formData.vipBasicWhen,
+            experienceWhere: formData.vipBasicWhere,
+            experienceTeacher: formData.vipBasicTeacher,
+          } : {}),
+          otherExperience: formData.otherExperience || null,
+          
+          // Report language
+          reportLanguage: formData.reportLanguage,
+          
+          // Course selection
+          courseType: formData.courseType,
+          ...(formData.courseType === 'basic_course' ? {
+            dateFrom: formData.startDateBasic,
+            dateTo: formData.endDateBasic,
+          } : {}),
+          ...(formData.courseType === 'retreat' ? {
+            dateFrom: formData.startDateRetreat,
+            dateTo: formData.endDateRetreat,
+          } : {}),
+          ...(formData.courseType === 'few_days' ? {
+            dateFrom: formData.startDateFew,
+            dateTo: formData.endDateFew,
+          } : {}),
+          
+          additionalInfo: formData.additionalInfo || null,
+          
+          // Submission timestamp
+          submissionTimestampISO: submissionTimestamp,
+        };
+
         await fetch(WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           mode: 'no-cors',
-          body: JSON.stringify({
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            phone: formData.phone,
-            email: formData.email,
-            address: `${formData.street} ${formData.houseNumber}, ${formData.zipCode} ${formData.city}, ${formData.country}`,
-            vip_basic_when: formData.vipBasicWhen,
-            vip_basic_where: formData.vipBasicWhere,
-            vip_basic_teacher: formData.vipBasicTeacher,
-            other_experience: formData.otherExperience,
-            report_language: formData.reportLanguage,
-            course_basic: formData.courseTypes.includes('basic_course'),
-            course_retreat: formData.courseTypes.includes('retreat'),
-            course_few_days: formData.courseTypes.includes('few_days'),
-            start_date_basic: formData.startDateBasic,
-            start_date_retreat: formData.startDateRetreat,
-            start_date_few: formData.startDateFew,
-            end_date_few: formData.endDateFew,
-            additional_info: formData.additionalInfo,
-            submitted_at: new Date().toISOString(),
-          }),
+          body: JSON.stringify(webhookPayload),
         });
       } catch (webhookError) {
         console.log('Webhook backup sent (no-cors mode)');
@@ -186,7 +251,7 @@ export function RegistrationForm() {
 
   const steps = [
     <Step1Person key={0} data={formData} updateData={updateData} errors={errors} />,
-    <Step2Address key={1} data={formData} updateData={updateData} errors={errors} />,
+    <AddressAutocomplete key={1} data={formData} updateData={updateData} errors={errors} />,
     <Step3Experience key={2} data={formData} updateData={updateData} errors={errors} />,
     <Step4Course key={3} data={formData} updateData={updateData} errors={errors} />,
     <Step5Review key={4} data={formData} updateData={updateData} errors={errors} />,

@@ -80,8 +80,10 @@ export type Database = {
           address_country: string
           address_house_number: string
           address_street: string
+          address_validated: boolean | null
           address_zip: string
           assigned_teacher_user_id: string | null
+          birth_year: number | null
           consent_privacy: boolean
           consent_timestamp: string | null
           course_basic: boolean | null
@@ -93,9 +95,12 @@ export type Database = {
           end_date_few: string | null
           end_date_retreat: string | null
           first_name: string
+          has_basic_course: boolean | null
           id: string
           last_name: string
           phone: string
+          phone_country: string | null
+          phone_e164: string | null
           registration_date: string
           report_language: Database["public"]["Enums"]["report_language"]
           room_number: string | null
@@ -114,8 +119,10 @@ export type Database = {
           address_country: string
           address_house_number: string
           address_street: string
+          address_validated?: boolean | null
           address_zip: string
           assigned_teacher_user_id?: string | null
+          birth_year?: number | null
           consent_privacy?: boolean
           consent_timestamp?: string | null
           course_basic?: boolean | null
@@ -127,9 +134,12 @@ export type Database = {
           end_date_few?: string | null
           end_date_retreat?: string | null
           first_name: string
+          has_basic_course?: boolean | null
           id?: string
           last_name: string
           phone: string
+          phone_country?: string | null
+          phone_e164?: string | null
           registration_date?: string
           report_language?: Database["public"]["Enums"]["report_language"]
           room_number?: string | null
@@ -148,8 +158,10 @@ export type Database = {
           address_country?: string
           address_house_number?: string
           address_street?: string
+          address_validated?: boolean | null
           address_zip?: string
           assigned_teacher_user_id?: string | null
+          birth_year?: number | null
           consent_privacy?: boolean
           consent_timestamp?: string | null
           course_basic?: boolean | null
@@ -161,9 +173,12 @@ export type Database = {
           end_date_few?: string | null
           end_date_retreat?: string | null
           first_name?: string
+          has_basic_course?: boolean | null
           id?: string
           last_name?: string
           phone?: string
+          phone_country?: string | null
+          phone_e164?: string | null
           registration_date?: string
           report_language?: Database["public"]["Enums"]["report_language"]
           room_number?: string | null
@@ -222,7 +237,7 @@ export type Database = {
         | "confirmed"
         | "done"
         | "archived"
-      report_language: "de" | "en"
+      report_language: "de" | "en" | "fr"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -359,7 +374,7 @@ export const Constants = {
         "done",
         "archived",
       ],
-      report_language: ["de", "en"],
+      report_language: ["de", "en", "fr"],
     },
   },
 } as const
