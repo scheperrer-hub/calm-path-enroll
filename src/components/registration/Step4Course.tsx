@@ -30,15 +30,15 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
       endDateFew: '',
     };
 
-    // Auto-fill for basic course
+    // Auto-fill for basic course (2026)
     if (courseType === 'basic_course') {
       updates.startDateBasic = COURSE_DATE_MIN;
       updates.endDateBasic = COURSE_DATE_MAX;
     }
     
-    // Auto-fill for retreat
+    // Auto-fill for retreat (2026)
     if (courseType === 'retreat') {
-      updates.startDateRetreat = '2025-08-22';
+      updates.startDateRetreat = '2026-08-21';
       updates.endDateRetreat = COURSE_DATE_MAX;
     }
 
@@ -145,7 +145,7 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
             {t('registration.step4.basicCourse')}
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
-            {t('registration.step4.dateRange')}: 19.08.2025 - 03.09.2025
+            {t('registration.step4.dateRange')}: 18.08.2026 - 02.09.2026
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -187,7 +187,7 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
             {t('registration.step4.retreat')}
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
-            {t('registration.step4.dateRange')}: 19.08.2025 - 03.09.2025
+            {t('registration.step4.dateRange')}: 18.08.2026 - 02.09.2026
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -229,7 +229,7 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
             {t('registration.step4.fewDays')}
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
-            {t('registration.step4.dateRange')}: 19.08.2025 - 03.09.2025
+            {t('registration.step4.dateRange')}: 18.08.2026 - 02.09.2026
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
