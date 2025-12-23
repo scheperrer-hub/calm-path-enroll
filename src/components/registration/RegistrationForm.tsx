@@ -159,65 +159,63 @@ export function RegistrationForm() {
         return;
       }
 
-      // Send structured webhook payload
+      // Send structured webhook payload as form-urlencoded for Make.com
       try {
-        const webhookPayload = {
-          // Personal info
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          phoneCountry: formData.phoneCountry,
-          phoneE164: formData.phoneE164,
-          phoneNational: formData.phone,
-          birthYear: formData.birthYear ? parseInt(formData.birthYear) : null,
-          
-          // Address
-          addressStreet: formData.street,
-          addressHouseNumber: formData.houseNumber,
-          addressZip: formData.zipCode,
-          addressCity: formData.city,
-          addressCountry: formData.country,
-          addressRaw: `${formData.street} ${formData.houseNumber}, ${formData.zipCode} ${formData.city}, ${formData.country}`,
-          addressValidated: formData.addressValidated,
-          
-          // Experience (only if has basic course)
-          experienceHasBasicCourse: formData.hasBasicCourse,
-          ...(formData.hasBasicCourse ? {
-            experienceWhen: formData.vipBasicWhen,
-            experienceWhere: formData.vipBasicWhere,
-            experienceTeacher: formData.vipBasicTeacher,
-          } : {}),
-          otherExperience: formData.otherExperience || null,
-          
-          // Report language
-          reportLanguage: formData.reportLanguage,
-          
-          // Course selection
-          courseType: formData.courseType,
-          ...(formData.courseType === 'basic_course' ? {
-            dateFrom: formData.startDateBasic,
-            dateTo: formData.endDateBasic,
-          } : {}),
-          ...(formData.courseType === 'retreat' ? {
-            dateFrom: formData.startDateRetreat,
-            dateTo: formData.endDateRetreat,
-          } : {}),
-          ...(formData.courseType === 'few_days' ? {
-            dateFrom: formData.startDateFew,
-            dateTo: formData.endDateFew,
-          } : {}),
-          
-          additionalInfo: formData.additionalInfo || null,
-          
-          // Submission timestamp
-          submissionTimestampISO: submissionTimestamp,
-        };
+        const webhookData = new URLSearchParams();
+        
+        // Personal info
+        webhookData.append('firstName', formData.firstName);
+        webhookData.append('lastName', formData.lastName);
+        webhookData.append('email', formData.email);
+        webhookData.append('phoneCountry', formData.phoneCountry);
+        webhookData.append('phoneE164', formData.phoneE164);
+        webhookData.append('phoneNational', formData.phone);
+        webhookData.append('birthYear', formData.birthYear || '');
+        
+        // Address
+        webhookData.append('addressStreet', formData.street);
+        webhookData.append('addressHouseNumber', formData.houseNumber);
+        webhookData.append('addressZip', formData.zipCode);
+        webhookData.append('addressCity', formData.city);
+        webhookData.append('addressCountry', formData.country);
+        webhookData.append('addressRaw', `${formData.street} ${formData.houseNumber}, ${formData.zipCode} ${formData.city}, ${formData.country}`);
+        webhookData.append('addressValidated', String(formData.addressValidated));
+        
+        // Experience
+        webhookData.append('experienceHasBasicCourse', String(formData.hasBasicCourse));
+        if (formData.hasBasicCourse) {
+          webhookData.append('experienceWhen', formData.vipBasicWhen);
+          webhookData.append('experienceWhere', formData.vipBasicWhere);
+          webhookData.append('experienceTeacher', formData.vipBasicTeacher);
+        }
+        webhookData.append('otherExperience', formData.otherExperience || '');
+        
+        // Report language
+        webhookData.append('reportLanguage', formData.reportLanguage);
+        
+        // Course selection
+        webhookData.append('courseType', formData.courseType);
+        
+        // Dates based on course type
+        if (formData.courseType === 'basic_course') {
+          webhookData.append('dateFrom', formData.startDateBasic);
+          webhookData.append('dateTo', formData.endDateBasic);
+        } else if (formData.courseType === 'retreat') {
+          webhookData.append('dateFrom', formData.startDateRetreat);
+          webhookData.append('dateTo', formData.endDateRetreat);
+        } else if (formData.courseType === 'few_days') {
+          webhookData.append('dateFrom', formData.startDateFew);
+          webhookData.append('dateTo', formData.endDateFew);
+        }
+        
+        webhookData.append('additionalInfo', formData.additionalInfo || '');
+        webhookData.append('submissionTimestampISO', submissionTimestamp);
 
         await fetch(WEBHOOK_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           mode: 'no-cors',
-          body: JSON.stringify(webhookPayload),
+          body: webhookData.toString(),
         });
       } catch (webhookError) {
         console.log('Webhook backup sent (no-cors mode)');

@@ -69,6 +69,6 @@ export const initialFormData: RegistrationFormData = {
   privacyConsent: false,
 };
 
-// Date constraints for the retreat
-export const COURSE_DATE_MIN = '2025-08-19';
-export const COURSE_DATE_MAX = '2025-09-03';
+// Date constraints for the retreat 2026
+export const COURSE_DATE_MIN = '2026-08-18';
+export const COURSE_DATE_MAX = '2026-09-02';

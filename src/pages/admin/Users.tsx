@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Loader2 } from 'lucide-react';
+import { Plus, Loader2, Mail } from 'lucide-react';
 import { toast } from 'sonner';
 
 type AppRole = 'admin' | 'leader' | 'teacher';
@@ -24,7 +24,7 @@ export default function Users() {
   const [isOpen, setIsOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState<AppRole>('teacher');
-  const [invitePassword, setInvitePassword] = useState('');
+  const [inviteDisplayName, setInviteDisplayName] = useState('');
 
   const isMainAdmin = user?.email === MAIN_ADMIN_EMAIL;
 
@@ -53,37 +53,32 @@ export default function Users() {
     enabled: userRole === 'admin',
   });
 
-  const createUser = useMutation({
+  const inviteUser = useMutation({
     mutationFn: async () => {
-      // Create the user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: inviteEmail,
-        password: invitePassword,
-        options: {
-          emailRedirectTo: `${window.location.origin}/app`,
+      // Call edge function to create user with invite email
+      const { data, error } = await supabase.functions.invoke('admin-create-user', {
+        body: {
+          email: inviteEmail,
+          role: inviteRole,
+          displayName: inviteDisplayName || undefined,
         },
       });
 
-      if (authError) throw authError;
-      if (!authData.user) throw new Error('User creation failed');
-
-      // Assign role
-      const { error: roleError } = await supabase.from('user_roles').insert({
-        user_id: authData.user.id,
-        role: inviteRole,
-      });
-
-      if (roleError) throw roleError;
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+      
+      return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       setIsOpen(false);
       setInviteEmail('');
-      setInvitePassword('');
-      toast.success('Benutzer erstellt');
+      setInviteDisplayName('');
+      toast.success(data?.message || 'Einladung gesendet');
     },
     onError: (error) => {
-      toast.error(error.message);
+      console.error('Invite error:', error);
+      toast.error(error.message || 'Fehler beim Einladen');
     },
   });
 
@@ -99,6 +94,10 @@ export default function Users() {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success('Rolle aktualisiert');
     },
+    onError: (error) => {
+      console.error('Role update error:', error);
+      toast.error('Fehler beim Aktualisieren');
+    },
   });
 
   if (userRole !== 'admin') {
@@ -109,7 +108,7 @@ export default function Users() {
     );
   }
 
-  const canInviteUsers = isMainAdmin;
+  const canInviteUsers = isMainAdmin || userRole === 'admin';
   const canEditRoles = isMainAdmin;
 
   const roleColors: Record<AppRole, string> = {
@@ -135,29 +134,35 @@ export default function Users() {
             </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Neuen Benutzer erstellen</DialogTitle>
+              <DialogTitle className="flex items-center gap-2">
+                <Mail className="w-5 h-5" />
+                Benutzer per E-Mail einladen
+              </DialogTitle>
             </DialogHeader>
             <div className="space-y-4 pt-4">
               <div className="space-y-2">
-                <Label>E-Mail</Label>
+                <Label>E-Mail-Adresse *</Label>
                 <Input
                   type="email"
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
                   placeholder="email@beispiel.de"
                 />
+                <p className="text-xs text-muted-foreground">
+                  Der Benutzer erhält eine Einladungs-E-Mail mit einem Link zum Einloggen.
+                </p>
               </div>
               <div className="space-y-2">
-                <Label>Passwort</Label>
+                <Label>Anzeigename (optional)</Label>
                 <Input
-                  type="password"
-                  value={invitePassword}
-                  onChange={(e) => setInvitePassword(e.target.value)}
-                  placeholder="Mindestens 6 Zeichen"
+                  type="text"
+                  value={inviteDisplayName}
+                  onChange={(e) => setInviteDisplayName(e.target.value)}
+                  placeholder="Max Mustermann"
                 />
               </div>
               <div className="space-y-2">
-                <Label>Rolle</Label>
+                <Label>Rolle *</Label>
                 <Select value={inviteRole} onValueChange={(v) => setInviteRole(v as AppRole)}>
                   <SelectTrigger>
                     <SelectValue />
@@ -170,12 +175,16 @@ export default function Users() {
                 </Select>
               </div>
               <Button
-                onClick={() => createUser.mutate()}
-                disabled={!inviteEmail || !invitePassword || createUser.isPending}
-                className="w-full"
+                onClick={() => inviteUser.mutate()}
+                disabled={!inviteEmail || inviteUser.isPending}
+                className="w-full gap-2"
               >
-                {createUser.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Benutzer erstellen
+                {inviteUser.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Mail className="h-4 w-4" />
+                )}
+                Einladung senden
               </Button>
             </div>
           </DialogContent>

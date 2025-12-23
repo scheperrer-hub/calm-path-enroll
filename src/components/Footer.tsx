@@ -17,7 +17,7 @@ export function Footer() {
             rel="noopener noreferrer"
             className="text-sm text-cream/70 hover:text-warm-orange transition-colors"
           >
-            © 2024 Buddhayana e.V.
+            © 2025 Buddhayana e.V.
           </a>
 
           {/* Links */}
