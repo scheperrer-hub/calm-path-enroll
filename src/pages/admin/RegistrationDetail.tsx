@@ -227,6 +227,14 @@ export default function RegistrationDetail() {
               <Label className="text-muted-foreground">E-Mail</Label>
               <p>{registration.email}</p>
             </div>
+            <div>
+              <Label className="text-muted-foreground">Geschlecht</Label>
+              <p>{registration.gender || '-'}</p>
+            </div>
+            <div>
+              <Label className="text-muted-foreground">Geburtsjahr</Label>
+              <p>{registration.birth_year || '-'}</p>
+            </div>
             <div className="sm:col-span-2">
               <Label className="text-muted-foreground">Adresse</Label>
               <p>
@@ -293,12 +301,35 @@ export default function RegistrationDetail() {
         </Card>
 
         {/* Experience */}
-        {(registration.vip_basic_when || registration.vip_other_experience) && (
+        {(registration.has_basic_course ||
+          registration.vip_basic_when ||
+          registration.vip_other_experience ||
+          registration.mother_tongue ||
+          registration.second_language ||
+          registration.impairments) && (
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Erfahrungen</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="grid sm:grid-cols-3 gap-4">
+                <div>
+                  <Label className="text-muted-foreground">Basiskurs besucht</Label>
+                  <p>{registration.has_basic_course ? 'Ja' : 'Nein'}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Basiskurs-Tage</Label>
+                  <p>{registration.basic_course_days ?? '-'}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Muttersprache</Label>
+                  <p>{registration.mother_tongue || '-'}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Zweitsprache</Label>
+                  <p>{registration.second_language || '-'}</p>
+                </div>
+              </div>
               {registration.vip_basic_when && (
                 <div className="grid sm:grid-cols-3 gap-4">
                   <div>
@@ -313,6 +344,12 @@ export default function RegistrationDetail() {
                     <Label className="text-muted-foreground">Lehrer</Label>
                     <p>{registration.vip_basic_teacher || '-'}</p>
                   </div>
+                </div>
+              )}
+              {registration.impairments && (
+                <div>
+                  <Label className="text-muted-foreground">Beeinträchtigungen</Label>
+                  <p className="whitespace-pre-wrap">{registration.impairments}</p>
                 </div>
               )}
               {registration.vip_other_experience && (
