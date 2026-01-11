@@ -30,9 +30,10 @@ interface RegistrationEditDialogProps {
   registration: Registration | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onDeleted?: () => void;
 }
 
-export function RegistrationEditDialog({ registration, open, onOpenChange }: RegistrationEditDialogProps) {
+export function RegistrationEditDialog({ registration, open, onOpenChange, onDeleted }: RegistrationEditDialogProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState<Partial<Registration>>({});
@@ -65,6 +66,52 @@ export function RegistrationEditDialog({ registration, open, onOpenChange }: Reg
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateMutation.mutate(formData);
+  };
+
+  const archiveMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from('registrations')
+        .update({ status: 'archived' })
+        .eq('id', registration?.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['registrations'] });
+      queryClient.invalidateQueries({ queryKey: ['registration', registration?.id] });
+      toast.success('Anmeldung archiviert');
+    },
+    onError: () => {
+      toast.error('Fehler beim Archivieren');
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from('registrations')
+        .delete()
+        .eq('id', registration?.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['registrations'] });
+      toast.success('Anmeldung gelöscht');
+      onOpenChange(false);
+      onDeleted?.();
+    },
+    onError: () => {
+      toast.error('Fehler beim Löschen');
+    },
+  });
+
+  const handleArchive = () => {
+    archiveMutation.mutate();
+  };
+
+  const handleDelete = () => {
+    if (!window.confirm('Möchten Sie diese Anmeldung wirklich löschen?')) return;
+    deleteMutation.mutate();
   };
 
   const updateField = (field: keyof Registration, value: unknown) => {
@@ -334,6 +381,24 @@ export function RegistrationEditDialog({ registration, open, onOpenChange }: Reg
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Löschen
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleArchive}
+              disabled={archiveMutation.isPending}
+            >
+              {archiveMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Archivieren
+            </Button>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Abbrechen
             </Button>
