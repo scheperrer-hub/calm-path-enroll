@@ -164,6 +164,30 @@ export function RegistrationEditDialog({ registration, open, onOpenChange, onDel
                   onChange={(e) => updateField('phone', e.target.value)}
                 />
               </div>
+              <div>
+                <Label htmlFor="gender">Geschlecht</Label>
+                <Select
+                  value={formData.gender || ''}
+                  onValueChange={(value) => updateField('gender', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Bitte auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Männlich</SelectItem>
+                    <SelectItem value="female">Weiblich</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="birth_year">Geburtsjahr</Label>
+                <Input
+                  id="birth_year"
+                  type="number"
+                  value={formData.birth_year ?? ''}
+                  onChange={(e) => updateField('birth_year', e.target.value ? Number(e.target.value) : null)}
+                />
+              </div>
             </div>
           </div>
 
@@ -304,6 +328,41 @@ export function RegistrationEditDialog({ registration, open, onOpenChange, onDel
           {/* Experience */}
           <div className="space-y-4">
             <h3 className="font-medium text-lg">Erfahrungen</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="has_basic_course"
+                  checked={formData.has_basic_course || false}
+                  onCheckedChange={(checked) => updateField('has_basic_course', checked)}
+                />
+                <Label htmlFor="has_basic_course">Basiskurs besucht</Label>
+              </div>
+              <div>
+                <Label htmlFor="basic_course_days">Basiskurs-Tage</Label>
+                <Input
+                  id="basic_course_days"
+                  type="number"
+                  value={formData.basic_course_days ?? ''}
+                  onChange={(e) => updateField('basic_course_days', e.target.value ? Number(e.target.value) : null)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="mother_tongue">Muttersprache</Label>
+                <Input
+                  id="mother_tongue"
+                  value={formData.mother_tongue || ''}
+                  onChange={(e) => updateField('mother_tongue', e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="second_language">Zweitsprache</Label>
+                <Input
+                  id="second_language"
+                  value={formData.second_language || ''}
+                  onChange={(e) => updateField('second_language', e.target.value)}
+                />
+              </div>
+            </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="vip_basic_when">Wann</Label>
@@ -337,6 +396,15 @@ export function RegistrationEditDialog({ registration, open, onOpenChange, onDel
                 value={formData.vip_other_experience || ''}
                 onChange={(e) => updateField('vip_other_experience', e.target.value)}
                 rows={3}
+              />
+            </div>
+            <div>
+              <Label htmlFor="impairments">Beeinträchtigungen</Label>
+              <Textarea
+                id="impairments"
+                value={formData.impairments || ''}
+                onChange={(e) => updateField('impairments', e.target.value)}
+                rows={2}
               />
             </div>
           </div>
