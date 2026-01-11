@@ -117,12 +117,12 @@ export default function Registrations() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead className="hidden md:table-cell">E-Mail</TableHead>
-              <TableHead className="hidden lg:table-cell">Kurs</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="hidden sm:table-cell">Datum</TableHead>
-              <TableHead></TableHead>
+              <TableHead className="sticky top-0 z-10 bg-background">Name</TableHead>
+              <TableHead className="sticky top-0 z-10 hidden bg-background md:table-cell">E-Mail</TableHead>
+              <TableHead className="sticky top-0 z-10 hidden bg-background lg:table-cell">Kurs</TableHead>
+              <TableHead className="sticky top-0 z-10 bg-background">Status</TableHead>
+              <TableHead className="sticky top-0 z-10 hidden bg-background sm:table-cell">Datum</TableHead>
+              <TableHead className="sticky top-0 z-10 bg-background"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

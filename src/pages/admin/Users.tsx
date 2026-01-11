@@ -196,9 +196,9 @@ export default function Users() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>E-Mail</TableHead>
-              <TableHead>Rolle</TableHead>
+              <TableHead className="sticky top-0 z-10 bg-background">Name</TableHead>
+              <TableHead className="sticky top-0 z-10 bg-background">E-Mail</TableHead>
+              <TableHead className="sticky top-0 z-10 bg-background">Rolle</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
