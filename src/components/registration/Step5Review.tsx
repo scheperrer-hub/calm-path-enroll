@@ -76,6 +76,12 @@ export function Step5Review({ data, updateData, errors }: Step5ReviewProps) {
             <span className="ml-2 text-foreground font-medium">{data.lastName}</span>
           </div>
           <div>
+            <span className="text-muted-foreground">{t('registration.step1.gender')}:</span>
+            <span className="ml-2 text-foreground font-medium">
+              {data.gender === 'male' ? t('registration.step1.genderMale') : data.gender === 'female' ? t('registration.step1.genderFemale') : '-'}
+            </span>
+          </div>
+          <div>
             <span className="text-muted-foreground">{t('registration.step1.birthYear')}:</span>
             <span className="ml-2 text-foreground font-medium">{data.birthYear}</span>
           </div>
@@ -130,6 +136,7 @@ export function Step5Review({ data, updateData, errors }: Step5ReviewProps) {
                 {data.vipBasicWhen && `${t('registration.step3.when')}: ${data.vipBasicWhen}`}
                 {data.vipBasicWhere && ` • ${t('registration.step3.where')}: ${data.vipBasicWhere}`}
                 {data.vipBasicTeacher && ` • ${t('registration.step3.teacher')}: ${data.vipBasicTeacher}`}
+                {data.basicCourseDays && ` • ${t('registration.step3.basicCourseDays')}: ${data.basicCourseDays}`}
               </p>
             </div>
           )}
@@ -143,11 +150,25 @@ export function Step5Review({ data, updateData, errors }: Step5ReviewProps) {
             </div>
           )}
           <div>
-            <span className="text-muted-foreground">{t('registration.step3.reportLanguage')}:</span>
+            <span className="text-muted-foreground">{t('registration.step3.motherTongue')}:</span>
             <span className="ml-2 text-foreground font-medium">
-              {reportLanguageLabels[data.reportLanguage]}
+              {reportLanguageLabels[data.motherTongue]}
             </span>
+            {data.secondLanguage && (
+              <>
+                <span className="ml-4 text-muted-foreground">{t('registration.step3.secondLanguage')}:</span>
+                <span className="ml-2 text-foreground font-medium">
+                  {reportLanguageLabels[data.secondLanguage]}
+                </span>
+              </>
+            )}
           </div>
+          {data.impairments && (
+            <div>
+              <span className="text-muted-foreground font-medium">{t('registration.step3.impairments')}:</span>
+              <p className="text-foreground mt-1 whitespace-pre-wrap">{data.impairments}</p>
+            </div>
+          )}
         </div>
       </div>
 

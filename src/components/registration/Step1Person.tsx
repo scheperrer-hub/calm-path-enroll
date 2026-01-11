@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { RegistrationFormData } from './types';
 import { PhoneInput } from './PhoneInput';
 
@@ -64,6 +65,34 @@ export function Step1Person({ data, updateData, errors }: Step1PersonProps) {
             <p className="text-sm text-destructive">{errors.lastName}</p>
           )}
         </div>
+      </div>
+
+      {/* Gender Selection */}
+      <div className="space-y-3">
+        <Label className="form-label">
+          {t('registration.step1.gender')} *
+        </Label>
+        <RadioGroup
+          value={data.gender}
+          onValueChange={(value: 'male' | 'female') => updateData({ gender: value })}
+          className="flex gap-6"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="male" id="male" />
+            <Label htmlFor="male" className="cursor-pointer font-normal">
+              {t('registration.step1.genderMale')}
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="female" id="female" />
+            <Label htmlFor="female" className="cursor-pointer font-normal">
+              {t('registration.step1.genderFemale')}
+            </Label>
+          </div>
+        </RadioGroup>
+        {errors.gender && (
+          <p className="text-sm text-destructive">{errors.gender}</p>
+        )}
       </div>
 
       {/* Birth Year */}
