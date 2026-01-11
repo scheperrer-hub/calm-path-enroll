@@ -7,6 +7,7 @@ export interface RegistrationFormData {
   phoneE164: string;
   email: string;
   birthYear: string;
+  gender: 'male' | 'female' | '';
 
   // Step 2 - Address
   street: string;
@@ -21,8 +22,11 @@ export interface RegistrationFormData {
   vipBasicWhen: string;
   vipBasicWhere: string;
   vipBasicTeacher: string;
+  basicCourseDays: string;
   otherExperience: string;
-  reportLanguage: 'de' | 'en' | 'fr';
+  motherTongue: 'de' | 'en' | 'fr';
+  secondLanguage: 'de' | 'en' | 'fr' | '';
+  impairments: string;
 
   // Step 4 - Course (single select now)
   courseType: 'basic_course' | 'retreat' | 'few_days' | '';
@@ -46,6 +50,7 @@ export const initialFormData: RegistrationFormData = {
   phoneE164: '',
   email: '',
   birthYear: '',
+  gender: '',
   street: '',
   houseNumber: '',
   zipCode: '',
@@ -56,8 +61,11 @@ export const initialFormData: RegistrationFormData = {
   vipBasicWhen: '',
   vipBasicWhere: '',
   vipBasicTeacher: '',
+  basicCourseDays: '',
   otherExperience: '',
-  reportLanguage: 'de',
+  motherTongue: 'de',
+  secondLanguage: '',
+  impairments: '',
   courseType: '',
   startDateBasic: '',
   endDateBasic: '',
@@ -71,4 +79,4 @@ export const initialFormData: RegistrationFormData = {
 
 // Date constraints for the retreat 2026
 export const COURSE_DATE_MIN = '2026-08-18';
-export const COURSE_DATE_MAX = '2026-09-02';
+export const COURSE_DATE_MAX = '2026-09-03';

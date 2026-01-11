@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { addDays, format, parseISO } from 'date-fns';
+import { addDays, format, parseISO, isAfter } from 'date-fns';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -49,7 +49,14 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
     if (!startDate) return '';
     try {
       const start = parseISO(startDate);
-      const end = addDays(start, days);
+      let end = addDays(start, days);
+      const maxDate = parseISO(COURSE_DATE_MAX);
+      
+      // Ensure end date doesn't exceed max date
+      if (isAfter(end, maxDate)) {
+        end = maxDate;
+      }
+      
       return format(end, 'yyyy-MM-dd');
     } catch {
       return '';
@@ -145,7 +152,7 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
             {t('registration.step4.basicCourse')}
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
-            {t('registration.step4.dateRange')}: 18.08.2026 - 02.09.2026
+            {t('registration.step4.dateRange')}: 18.08.2026 - 03.09.2026
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -187,7 +194,7 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
             {t('registration.step4.retreat')}
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
-            {t('registration.step4.dateRange')}: 18.08.2026 - 02.09.2026
+            {t('registration.step4.dateRange')}: 18.08.2026 - 03.09.2026
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -229,7 +236,7 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
             {t('registration.step4.fewDays')}
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
-            {t('registration.step4.dateRange')}: 18.08.2026 - 02.09.2026
+            {t('registration.step4.dateRange')}: 18.08.2026 - 03.09.2026
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -256,7 +263,7 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
               <Input
                 id="endDateFew"
                 type="date"
-                min={COURSE_DATE_MIN}
+                min={data.startDateFew || COURSE_DATE_MIN}
                 max={COURSE_DATE_MAX}
                 value={data.endDateFew}
                 onChange={(e) => updateData({ endDateFew: e.target.value })}

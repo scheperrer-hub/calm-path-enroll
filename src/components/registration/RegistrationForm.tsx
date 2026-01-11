@@ -55,6 +55,7 @@ export function RegistrationForm() {
     if (step === 0) {
       if (!formData.firstName.trim()) newErrors.firstName = t('registration.validation.required');
       if (!formData.lastName.trim()) newErrors.lastName = t('registration.validation.required');
+      if (!formData.gender) newErrors.gender = t('registration.validation.required');
       
       // Birth year validation
       if (!formData.birthYear.trim()) {
@@ -87,6 +88,7 @@ export function RegistrationForm() {
         if (!formData.vipBasicWhen.trim()) newErrors.vipBasicWhen = t('registration.validation.required');
         if (!formData.vipBasicWhere.trim()) newErrors.vipBasicWhere = t('registration.validation.required');
         if (!formData.vipBasicTeacher.trim()) newErrors.vipBasicTeacher = t('registration.validation.required');
+        if (!formData.basicCourseDays.trim()) newErrors.basicCourseDays = t('registration.validation.required');
       }
     } else if (step === 3) {
       if (!formData.courseType) newErrors.courseType = t('registration.validation.selectCourse');
@@ -137,8 +139,12 @@ export function RegistrationForm() {
         vip_basic_when: formData.hasBasicCourse ? formData.vipBasicWhen : null,
         vip_basic_where: formData.hasBasicCourse ? formData.vipBasicWhere : null,
         vip_basic_teacher: formData.hasBasicCourse ? formData.vipBasicTeacher : null,
+        basic_course_days: formData.hasBasicCourse && formData.basicCourseDays ? parseInt(formData.basicCourseDays) : null,
         vip_other_experience: formData.otherExperience || null,
-        report_language: formData.reportLanguage,
+        mother_tongue: formData.motherTongue,
+        second_language: formData.secondLanguage || null,
+        impairments: formData.impairments || null,
+        gender: formData.gender || null,
         course_basic: formData.courseType === 'basic_course',
         course_retreat: formData.courseType === 'retreat',
         course_few_days: formData.courseType === 'few_days',
@@ -187,11 +193,17 @@ export function RegistrationForm() {
           webhookData.append('experienceWhen', formData.vipBasicWhen);
           webhookData.append('experienceWhere', formData.vipBasicWhere);
           webhookData.append('experienceTeacher', formData.vipBasicTeacher);
+          webhookData.append('experienceBasicCourseDays', formData.basicCourseDays);
         }
         webhookData.append('otherExperience', formData.otherExperience || '');
+        webhookData.append('impairments', formData.impairments || '');
         
-        // Report language
-        webhookData.append('reportLanguage', formData.reportLanguage);
+        // Languages
+        webhookData.append('motherTongue', formData.motherTongue);
+        webhookData.append('secondLanguage', formData.secondLanguage || '');
+        
+        // Gender
+        webhookData.append('gender', formData.gender);
         
         // Course selection
         webhookData.append('courseType', formData.courseType);

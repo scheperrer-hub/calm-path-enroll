@@ -83,6 +83,7 @@ export type Database = {
           address_validated: boolean | null
           address_zip: string
           assigned_teacher_user_id: string | null
+          basic_course_days: number | null
           birth_year: number | null
           consent_privacy: boolean
           consent_timestamp: string | null
@@ -95,15 +96,19 @@ export type Database = {
           end_date_few: string | null
           end_date_retreat: string | null
           first_name: string
+          gender: string | null
           has_basic_course: boolean | null
           id: string
+          impairments: string | null
           last_name: string
+          mother_tongue: string | null
           phone: string
           phone_country: string | null
           phone_e164: string | null
           registration_date: string
           report_language: Database["public"]["Enums"]["report_language"]
           room_number: string | null
+          second_language: string | null
           start_date_basic: string | null
           start_date_few: string | null
           start_date_retreat: string | null
@@ -122,6 +127,7 @@ export type Database = {
           address_validated?: boolean | null
           address_zip: string
           assigned_teacher_user_id?: string | null
+          basic_course_days?: number | null
           birth_year?: number | null
           consent_privacy?: boolean
           consent_timestamp?: string | null
@@ -134,15 +140,19 @@ export type Database = {
           end_date_few?: string | null
           end_date_retreat?: string | null
           first_name: string
+          gender?: string | null
           has_basic_course?: boolean | null
           id?: string
+          impairments?: string | null
           last_name: string
+          mother_tongue?: string | null
           phone: string
           phone_country?: string | null
           phone_e164?: string | null
           registration_date?: string
           report_language?: Database["public"]["Enums"]["report_language"]
           room_number?: string | null
+          second_language?: string | null
           start_date_basic?: string | null
           start_date_few?: string | null
           start_date_retreat?: string | null
@@ -161,6 +171,7 @@ export type Database = {
           address_validated?: boolean | null
           address_zip?: string
           assigned_teacher_user_id?: string | null
+          basic_course_days?: number | null
           birth_year?: number | null
           consent_privacy?: boolean
           consent_timestamp?: string | null
@@ -173,15 +184,19 @@ export type Database = {
           end_date_few?: string | null
           end_date_retreat?: string | null
           first_name?: string
+          gender?: string | null
           has_basic_course?: boolean | null
           id?: string
+          impairments?: string | null
           last_name?: string
+          mother_tongue?: string | null
           phone?: string
           phone_country?: string | null
           phone_e164?: string | null
           registration_date?: string
           report_language?: Database["public"]["Enums"]["report_language"]
           room_number?: string | null
+          second_language?: string | null
           start_date_basic?: string | null
           start_date_few?: string | null
           start_date_retreat?: string | null

@@ -25,7 +25,7 @@ export function Step3Experience({ data, updateData, errors }: Step3ExperiencePro
     updateData({ 
       hasBasicCourse: checked,
       // Clear fields if unchecked
-      ...(checked ? {} : { vipBasicWhen: '', vipBasicWhere: '', vipBasicTeacher: '' })
+      ...(checked ? {} : { vipBasicWhen: '', vipBasicWhere: '', vipBasicTeacher: '', basicCourseDays: '' })
     });
   };
 
@@ -66,7 +66,7 @@ export function Step3Experience({ data, updateData, errors }: Step3ExperiencePro
               {t('registration.step3.basicRetreat')}
             </h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div className="space-y-2">
                 <Label htmlFor="vipBasicWhen" className="form-label">
                   {t('registration.step3.when')} *
@@ -114,6 +114,28 @@ export function Step3Experience({ data, updateData, errors }: Step3ExperiencePro
                   <p className="text-sm text-destructive">{errors.vipBasicTeacher}</p>
                 )}
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="basicCourseDays" className="form-label">
+                  {t('registration.step3.basicCourseDays')} *
+                </Label>
+                <Input
+                  id="basicCourseDays"
+                  type="number"
+                  min={1}
+                  max={60}
+                  value={data.basicCourseDays}
+                  onChange={(e) => updateData({ basicCourseDays: e.target.value })}
+                  className={`input-field ${errors.basicCourseDays ? 'border-destructive' : ''}`}
+                  placeholder={t('registration.step3.basicCourseDaysPlaceholder')}
+                />
+                <p className="text-xs text-muted-foreground">
+                  {t('registration.step3.basicCourseDaysDescription')}
+                </p>
+                {errors.basicCourseDays && (
+                  <p className="text-sm text-destructive">{errors.basicCourseDays}</p>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -133,17 +155,17 @@ export function Step3Experience({ data, updateData, errors }: Step3ExperiencePro
         />
       </div>
 
-      {/* Report Language */}
+      {/* Mother Tongue */}
       <div className="space-y-2">
-        <Label htmlFor="reportLanguage" className="form-label">
-          {t('registration.step3.reportLanguage')} *
+        <Label htmlFor="motherTongue" className="form-label">
+          {t('registration.step3.motherTongue')} *
         </Label>
         <p className="text-sm text-muted-foreground mb-2">
-          {t('registration.step3.reportLanguageDescription')}
+          {t('registration.step3.motherTongueDescription')}
         </p>
         <Select
-          value={data.reportLanguage}
-          onValueChange={(value: 'de' | 'en' | 'fr') => updateData({ reportLanguage: value })}
+          value={data.motherTongue}
+          onValueChange={(value: 'de' | 'en' | 'fr') => updateData({ motherTongue: value })}
         >
           <SelectTrigger className="input-field w-full md:w-[280px]">
             <SelectValue />
@@ -154,6 +176,47 @@ export function Step3Experience({ data, updateData, errors }: Step3ExperiencePro
             <SelectItem value="fr">🇫🇷 Français</SelectItem>
           </SelectContent>
         </Select>
+      </div>
+
+      {/* Second Language */}
+      <div className="space-y-2">
+        <Label htmlFor="secondLanguage" className="form-label">
+          {t('registration.step3.secondLanguage')}
+        </Label>
+        <p className="text-sm text-muted-foreground mb-2">
+          {t('registration.step3.secondLanguageDescription')}
+        </p>
+        <Select
+          value={data.secondLanguage || 'none'}
+          onValueChange={(value) => updateData({ secondLanguage: value === 'none' ? '' : value as 'de' | 'en' | 'fr' })}
+        >
+          <SelectTrigger className="input-field w-full md:w-[280px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">— {t('registration.step3.noSecondLanguage')}</SelectItem>
+            <SelectItem value="de">🇩🇪 Deutsch</SelectItem>
+            <SelectItem value="en">🇬🇧 English</SelectItem>
+            <SelectItem value="fr">🇫🇷 Français</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Impairments */}
+      <div className="space-y-2">
+        <Label htmlFor="impairments" className="form-label">
+          {t('registration.step3.impairments')}
+        </Label>
+        <p className="text-sm text-muted-foreground mb-2">
+          {t('registration.step3.impairmentsDescription')}
+        </p>
+        <Textarea
+          id="impairments"
+          value={data.impairments}
+          onChange={(e) => updateData({ impairments: e.target.value })}
+          className="input-field min-h-[100px] resize-y"
+          placeholder={t('registration.step3.impairmentsPlaceholder')}
+        />
       </div>
     </div>
   );
