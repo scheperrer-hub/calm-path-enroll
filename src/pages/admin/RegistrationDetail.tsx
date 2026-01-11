@@ -394,6 +394,7 @@ export default function RegistrationDetail() {
         registration={registration} 
         open={editOpen} 
         onOpenChange={setEditOpen} 
+        onDeleted={() => navigate('/app/anmeldungen')}
       />
     </div>
   );
