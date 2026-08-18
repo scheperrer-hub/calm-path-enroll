@@ -18,6 +18,7 @@ import Dashboard from "./pages/admin/Dashboard";
 import Registrations from "./pages/admin/Registrations";
 import RegistrationDetail from "./pages/admin/RegistrationDetail";
 import Board from "./pages/admin/Board";
+import TeacherOverview from "./pages/admin/TeacherOverview";
 import Users from "./pages/admin/Users";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
                 <Route path="anmeldungen" element={<Registrations />} />
                 <Route path="anmeldungen/:id" element={<RegistrationDetail />} />
                 <Route path="board" element={<Board />} />
+                <Route path="lehrer-uebersicht" element={<TeacherOverview />} />
                 <Route path="users" element={<Users />} />
               </Route>
             </Route>

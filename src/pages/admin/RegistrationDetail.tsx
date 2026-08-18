@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
+import { useTeachers } from '@/hooks/useTeachers';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -69,30 +70,7 @@ export default function RegistrationDetail() {
     },
   });
 
-  const { data: teachers } = useQuery({
-    queryKey: ['teachers'],
-    queryFn: async () => {
-      const { data: rolesData, error } = await supabase
-        .from('user_roles')
-        .select('user_id, role')
-        .in('role', ['teacher', 'leader', 'admin']);
-      if (error) throw error;
-
-      const userIds = rolesData.map(r => r.user_id);
-      const { data: profilesData } = await supabase
-        .from('profiles')
-        .select('user_id, display_name, email')
-        .in('user_id', userIds);
-
-      const profilesMap = new Map(profilesData?.map(p => [p.user_id, p]) || []);
-      
-      return rolesData.map(role => ({
-        ...role,
-        profile: profilesMap.get(role.user_id),
-      }));
-    },
-    enabled: userRole === 'admin' || userRole === 'leader',
-  });
+  const { data: teachers } = useTeachers(userRole === 'admin' || userRole === 'leader');
 
   const updateRegistration = useMutation({
     mutationFn: async (updates: Record<string, unknown>) => {
@@ -383,8 +361,8 @@ export default function RegistrationDetail() {
                 <SelectContent>
                   <SelectItem value="none">Nicht zugewiesen</SelectItem>
                   {teachers?.map((teacher) => (
-                    <SelectItem key={teacher.user_id} value={teacher.user_id}>
-                      {teacher.profile?.display_name || teacher.profile?.email || teacher.user_id}
+                    <SelectItem key={teacher.userId} value={teacher.userId}>
+                      {teacher.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
