@@ -74,7 +74,8 @@ export default function RegistrationDetail() {
     mutationFn: async (updates: Record<string, unknown>) => {
       const { error } = await supabase
         .from('registrations')
-        .update(updates)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .update(updates as any)
         .eq('id', id);
       if (error) throw error;
     },

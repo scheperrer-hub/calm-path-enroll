@@ -33,7 +33,7 @@ export function AddressAutocomplete({ data, updateData, errors }: AddressAutocom
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isValidated, setIsValidated] = useState(data.addressValidated || false);
-  const debounceRef = useRef<NodeJS.Timeout>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   // Close suggestions when clicking outside
