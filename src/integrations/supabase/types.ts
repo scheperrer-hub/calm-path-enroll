@@ -82,7 +82,6 @@ export type Database = {
           address_street: string
           address_validated: boolean | null
           address_zip: string
-          assigned_teacher: string | null
           assigned_teacher_user_id: string | null
           basic_course_days: number | null
           birth_year: number | null
@@ -127,7 +126,6 @@ export type Database = {
           address_street: string
           address_validated?: boolean | null
           address_zip: string
-          assigned_teacher?: string | null
           assigned_teacher_user_id?: string | null
           basic_course_days?: number | null
           birth_year?: number | null
@@ -172,7 +170,6 @@ export type Database = {
           address_street?: string
           address_validated?: boolean | null
           address_zip?: string
-          assigned_teacher?: string | null
           assigned_teacher_user_id?: string | null
           basic_course_days?: number | null
           birth_year?: number | null
