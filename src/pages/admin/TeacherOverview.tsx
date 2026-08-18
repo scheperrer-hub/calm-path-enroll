@@ -3,8 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { FileSpreadsheet, FileText, Info, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useAuth } from '@/hooks/useAuth';
-import { useTeachers } from '@/hooks/useTeachers';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -20,22 +18,17 @@ import {
   getOverviewDays,
   groupByTeacher,
 } from '@/utils/teacherOverview';
+import { TEACHERS } from '@/utils/teachers';
 
 export default function TeacherOverview() {
   const { t } = useTranslation();
-  const { userRole } = useAuth();
   const [teacherFilter, setTeacherFilter] = useState('all');
   const [includeArchived, setIncludeArchived] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
-  // Lehrerliste und Profile sind laut RLS nur für Admin und Leiter lesbar.
-  const canView = userRole === 'admin' || userRole === 'leader';
-
   const days = useMemo(() => getOverviewDays(), []);
 
-  const { data: teachers, isLoading: teachersLoading } = useTeachers(canView);
-
-  const { data: registrations, isLoading: registrationsLoading } = useQuery({
+  const { data: registrations, isLoading } = useQuery({
     queryKey: ['registrations', 'teacher-overview', includeArchived],
     queryFn: async (): Promise<Registration[]> => {
       let query = supabase.from('registrations').select('*');
@@ -47,13 +40,9 @@ export default function TeacherOverview() {
       if (error) throw error;
       return data;
     },
-    enabled: canView,
   });
 
-  const groups = useMemo(
-    () => groupByTeacher(registrations ?? [], teachers ?? []),
-    [registrations, teachers],
-  );
+  const groups = useMemo(() => groupByTeacher(registrations ?? []), [registrations]);
 
   const visibleGroups = useMemo(
     () => (teacherFilter === 'all' ? groups : groups.filter((group) => group.id === teacherFilter)),
@@ -61,7 +50,6 @@ export default function TeacherOverview() {
   );
 
   const visibleCount = visibleGroups.reduce((total, group) => total + group.registrations.length, 0);
-  const isLoading = teachersLoading || registrationsLoading;
 
   const handleExport = async (kind: 'excel' | 'pdf') => {
     setIsExporting(true);
@@ -82,17 +70,6 @@ export default function TeacherOverview() {
       setIsExporting(false);
     }
   };
-
-  if (!canView) {
-    return (
-      <div className="p-6 lg:p-8">
-        <h1 className="font-serif text-3xl text-foreground mb-2">
-          {t('admin.teacherOverview.title')}
-        </h1>
-        <p className="text-muted-foreground">{t('admin.teacherOverview.noAccess')}</p>
-      </div>
-    );
-  }
 
   return (
     <div className="p-6 lg:p-8">
@@ -143,9 +120,9 @@ export default function TeacherOverview() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t('admin.teacherOverview.allTeachers')}</SelectItem>
-            {teachers?.map((teacher) => (
-              <SelectItem key={teacher.userId} value={teacher.userId}>
-                {teacher.name}
+            {TEACHERS.map((teacher) => (
+              <SelectItem key={teacher} value={teacher}>
+                {teacher}
               </SelectItem>
             ))}
             <SelectItem value={UNASSIGNED_GROUP_ID}>

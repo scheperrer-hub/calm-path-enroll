@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
-import { useTeachers } from '@/hooks/useTeachers';
+import { TEACHERS } from '@/utils/teachers';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -70,8 +70,6 @@ export default function RegistrationDetail() {
     },
   });
 
-  const { data: teachers } = useTeachers(userRole === 'admin' || userRole === 'leader');
-
   const updateRegistration = useMutation({
     mutationFn: async (updates: Record<string, unknown>) => {
       const { error } = await supabase
@@ -84,8 +82,8 @@ export default function RegistrationDetail() {
       queryClient.invalidateQueries({ queryKey: ['registration', id] });
       toast.success('Gespeichert');
     },
-    onError: () => {
-      toast.error('Fehler beim Speichern');
+    onError: (error: Error) => {
+      toast.error(`Fehler beim Speichern: ${error.message}`);
     },
   });
 
@@ -348,10 +346,10 @@ export default function RegistrationDetail() {
             </CardHeader>
             <CardContent>
               <Select
-                value={registration.assigned_teacher_user_id || 'none'}
-                onValueChange={(value) => 
-                  updateRegistration.mutate({ 
-                    assigned_teacher_user_id: value === 'none' ? null : value 
+                value={registration.assigned_teacher || 'none'}
+                onValueChange={(value) =>
+                  updateRegistration.mutate({
+                    assigned_teacher: value === 'none' ? null : value,
                   })
                 }
               >
@@ -360,9 +358,9 @@ export default function RegistrationDetail() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Nicht zugewiesen</SelectItem>
-                  {teachers?.map((teacher) => (
-                    <SelectItem key={teacher.userId} value={teacher.userId}>
-                      {teacher.name}
+                  {TEACHERS.map((teacher) => (
+                    <SelectItem key={teacher} value={teacher}>
+                      {teacher}
                     </SelectItem>
                   ))}
                 </SelectContent>

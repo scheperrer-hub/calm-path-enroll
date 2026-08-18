@@ -235,7 +235,6 @@ Die Lehrer und der Buddhayana e.V. behalten sich das Recht vor, dem Teilnehmer d
       name: "Vorname Nachname",
       noStudents: "Keine Schüler zugeordnet",
       noRegistrations: "Keine Anmeldungen gefunden",
-      noAccess: "Diese Übersicht ist Administratoren und Leitern vorbehalten.",
     },
     addNote: "Notiz hinzufügen",
     notes: "Notizen",

@@ -237,7 +237,6 @@ The teachers and Buddhayana e.V. reserve the right to refuse the participant to 
       name: "First name Last name",
       noStudents: "No students assigned",
       noRegistrations: "No registrations found",
-      noAccess: "This overview is restricted to administrators and leaders.",
     },
     addNote: "Add Note",
     notes: "Notes",
