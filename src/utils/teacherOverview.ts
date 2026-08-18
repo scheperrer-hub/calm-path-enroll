@@ -1,6 +1,7 @@
 import { addDays, differenceInCalendarDays, format, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Tables } from '@/integrations/supabase/types';
+import { TEACHERS } from './teachers';
 
 export type Registration = Tables<'registrations'>;
 
@@ -169,35 +170,42 @@ const compareRegistrations = (a: Registration, b: Registration): number => {
 };
 
 /**
- * Anmeldungen nach zugeordnetem Lehrer gruppieren – Reihenfolge der Lehrerliste,
- * nicht zugewiesene Anmeldungen als letzte Gruppe.
+ * Anmeldungen nach zugeordnetem Lehrer gruppieren – in der Reihenfolge von
+ * TEACHERS, danach eventuelle Alt-Zuordnungen mit unbekanntem Namen, zuletzt
+ * die nicht zugewiesenen Anmeldungen.
  */
-export const groupByTeacher = (
-  registrations: Registration[],
-  teachers: { userId: string; name: string }[],
-): TeacherGroup[] => {
-  const groups: TeacherGroup[] = teachers.map((teacher) => ({
-    id: teacher.userId,
-    name: teacher.name,
-    registrations: [],
-  }));
-  const groupsById = new Map(groups.map((group) => [group.id, group]));
+export const groupByTeacher = (registrations: Registration[]): TeacherGroup[] => {
+  const groups: TeacherGroup[] = TEACHERS.map((name) => ({ id: name, name, registrations: [] }));
+  const groupsByName = new Map(groups.map((group) => [group.name, group]));
   const unassigned: TeacherGroup = {
     id: UNASSIGNED_GROUP_ID,
     name: UNASSIGNED_GROUP_LABEL,
     registrations: [],
   };
+  // Namen, die nicht mehr in TEACHERS stehen, bekommen eine eigene Gruppe,
+  // damit keine Anmeldung unbemerkt unter "Nicht zugewiesen" verschwindet.
+  const unknown: TeacherGroup[] = [];
 
   registrations.forEach((registration) => {
-    const group = registration.assigned_teacher_user_id
-      ? groupsById.get(registration.assigned_teacher_user_id)
-      : undefined;
-    (group ?? unassigned).registrations.push(registration);
+    const name = registration.assigned_teacher?.trim();
+    if (!name) {
+      unassigned.registrations.push(registration);
+      return;
+    }
+
+    let group = groupsByName.get(name);
+    if (!group) {
+      group = { id: name, name, registrations: [] };
+      groupsByName.set(name, group);
+      unknown.push(group);
+    }
+    group.registrations.push(registration);
   });
 
-  [...groups, unassigned].forEach((group) => group.registrations.sort(compareRegistrations));
+  const all = [...groups, ...unknown, ...(unassigned.registrations.length > 0 ? [unassigned] : [])];
+  all.forEach((group) => group.registrations.sort(compareRegistrations));
 
-  return unassigned.registrations.length > 0 ? [...groups, unassigned] : groups;
+  return all;
 };
 
 export const getFullName = (registration: Registration): string =>

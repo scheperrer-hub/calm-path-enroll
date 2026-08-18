@@ -27,9 +27,7 @@ export default function AdminLayout() {
     { path: '/app', icon: LayoutDashboard, label: t('admin.dashboard') },
     { path: '/app/anmeldungen', icon: ClipboardList, label: t('admin.registrations') },
     { path: '/app/board', icon: Kanban, label: t('admin.board') },
-    ...(userRole === 'admin' || userRole === 'leader'
-      ? [{ path: '/app/lehrer-uebersicht', icon: CalendarRange, label: t('admin.teacherOverview.navLabel') }]
-      : []),
+    { path: '/app/lehrer-uebersicht', icon: CalendarRange, label: t('admin.teacherOverview.navLabel') },
     ...(userRole === 'admin' ? [{ path: '/app/users', icon: Users, label: t('admin.users') }] : []),
   ];
 

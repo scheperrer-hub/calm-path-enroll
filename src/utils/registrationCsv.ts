@@ -39,6 +39,8 @@ const CSV_COLUMNS: CsvColumn[] = [
   { label: 'Zusätzliche Infos', value: (registration) => registration.additional_info },
   { label: 'Datenschutz Zustimmung', value: (registration) => registration.consent_privacy },
   { label: 'Datenschutz Zustimmung Zeitpunkt', value: (registration) => registration.consent_timestamp },
+  { label: 'Lehrer', value: (registration) => registration.assigned_teacher },
+  { label: 'Zimmernummer', value: (registration) => registration.room_number },
   { label: 'Status', value: (registration) => registration.status },
   { label: 'Erstellt am', value: (registration) => registration.created_at },
 ];
