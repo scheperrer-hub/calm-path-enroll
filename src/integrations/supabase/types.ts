@@ -73,36 +73,6 @@ export type Database = {
         }
         Relationships: []
       }
-      registration_changes: {
-        Row: {
-          changed_at: string
-          changed_by: string | null
-          field: string
-          id: string
-          new_value: string | null
-          old_value: string | null
-          registration_id: string
-        }
-        Insert: {
-          changed_at?: string
-          changed_by?: string | null
-          field: string
-          id?: string
-          new_value?: string | null
-          old_value?: string | null
-          registration_id: string
-        }
-        Update: {
-          changed_at?: string
-          changed_by?: string | null
-          field?: string
-          id?: string
-          new_value?: string | null
-          old_value?: string | null
-          registration_id?: string
-        }
-        Relationships: []
-      }
       registrations: {
         Row: {
           additional_info: string | null
