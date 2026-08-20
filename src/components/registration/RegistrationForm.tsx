@@ -93,6 +93,11 @@ export function RegistrationForm() {
       if (!formData.city.trim()) newErrors.city = t('registration.validation.required');
       if (!formData.country.trim()) newErrors.country = t('registration.validation.required');
     } else if (step === 2) {
+      // Die Reportsprache ist bewusst nicht vorbelegt und muss gewählt werden.
+      if (!formData.reportLanguage) {
+        newErrors.reportLanguage = t('registration.validation.required');
+      }
+
       // Validate experience fields if hasBasicCourse is checked
       if (formData.hasBasicCourse) {
         if (!formData.vipBasicWhen.trim()) newErrors.vipBasicWhen = t('registration.validation.required');
@@ -180,7 +185,8 @@ export function RegistrationForm() {
         basic_course_days: formData.hasBasicCourse && formData.basicCourseDays ? parseInt(formData.basicCourseDays) : null,
         vip_other_experience: formData.otherExperience || null,
         mother_tongue: formData.motherTongue,
-        report_language: formData.motherTongue,
+        // Durch die Pflichtprüfung in Schritt 3 immer gesetzt.
+        report_language: formData.reportLanguage as 'de' | 'en' | 'fr',
         second_language: formData.secondLanguage || null,
         impairments: formData.impairments || null,
         gender: formData.gender || null,
