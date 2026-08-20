@@ -1,5 +1,5 @@
 import { addDays, differenceInCalendarDays, format, parseISO } from 'date-fns';
-import { de } from 'date-fns/locale';
+import type { Locale } from 'date-fns';
 import { Tables } from '@/integrations/supabase/types';
 import { TEACHERS } from './teachers';
 
@@ -12,9 +12,6 @@ export const OVERVIEW_END = '2026-09-03';
 export type CourseKey = 'basic' | 'retreat' | 'few';
 
 type CourseDefinition = {
-  /** Kürzel in der Spalte "GK/R/T". */
-  code: string;
-  label: string;
   /** Balkenfarbe – identisch in Web, Excel und PDF. */
   color: string;
   flag: keyof Registration;
@@ -26,24 +23,18 @@ export const COURSE_KEYS: CourseKey[] = ['basic', 'retreat', 'few'];
 
 export const COURSE_DEFINITIONS: Record<CourseKey, CourseDefinition> = {
   basic: {
-    code: 'GK',
-    label: 'Grundkurs',
     color: '#AD1F2B',
     flag: 'course_basic',
     startField: 'start_date_basic',
     endField: 'end_date_basic',
   },
   retreat: {
-    code: 'R',
-    label: 'Retreat',
     color: '#D99726',
     flag: 'course_retreat',
     startField: 'start_date_retreat',
     endField: 'end_date_retreat',
   },
   few: {
-    code: 'T',
-    label: 'Tage',
     color: '#5B7C6F',
     flag: 'course_few_days',
     startField: 'start_date_few',
@@ -51,8 +42,34 @@ export const COURSE_DEFINITIONS: Record<CourseKey, CourseDefinition> = {
   },
 };
 
+/**
+ * Hintergrund der Lehrer-Trennzeile. Bewusst zurückhaltend gehalten, damit die
+ * Balken die Aufmerksamkeit bekommen und nicht die Trennzeilen.
+ * Eine Änderung hier wirkt gleichzeitig in Web, Excel und PDF.
+ */
+export const GROUP_ROW_BACKGROUND = '#CFC7BC';
+export const GROUP_ROW_TEXT = '#2B2622';
+
 export const UNASSIGNED_GROUP_ID = 'unassigned';
-export const UNASSIGNED_GROUP_LABEL = 'Nicht zugewiesen';
+
+/** Alle sprachabhängigen Texte der Übersicht und ihrer Exporte. */
+export type OverviewLabels = {
+  title: string;
+  generatedOn: string;
+  room: string;
+  name: string;
+  codeHeader: string;
+  unassigned: string;
+  noStudents: string;
+  noRegistrations: string;
+  page: string;
+  sheetName: string;
+  fileBaseName: string;
+  courseNames: Record<CourseKey, string>;
+  courseCodes: Record<CourseKey, string>;
+  dateLocale: Locale;
+  dateFormat: string;
+};
 
 const parseDate = (value: unknown): Date | null => {
   if (typeof value !== 'string' || !value) return null;
@@ -81,10 +98,10 @@ export const getCourseKeys = (registration: Registration): CourseKey[] => {
   return COURSE_KEYS.filter((key) => parseDate(registration[COURSE_DEFINITIONS[key].startField]) !== null);
 };
 
-/** Kürzel für die Spalte "GK/R/T", z. B. "GK" oder "GK/R". */
-export const getCourseCode = (registration: Registration): string =>
+/** Kürzel für die Kursspalte, z. B. "GK" oder "GK/R". */
+export const getCourseCode = (registration: Registration, labels: OverviewLabels): string =>
   getCourseKeys(registration)
-    .map((key) => COURSE_DEFINITIONS[key].code)
+    .map((key) => labels.courseCodes[key])
     .join('/');
 
 export type StaySegment = {
@@ -137,18 +154,6 @@ export const getDaySpans = (registration: Registration, days: Date[]): DaySpan[]
   });
 };
 
-/** Gesamter Aufenthalt über alle Kursarten hinweg. */
-export const getStayRange = (registration: Registration): StaySegment | null => {
-  const segments = getStaySegments(registration);
-  if (segments.length === 0) return null;
-
-  return segments.reduce((range, segment) => ({
-    key: range.key,
-    start: segment.start < range.start ? segment.start : range.start,
-    end: segment.end > range.end ? segment.end : range.end,
-  }));
-};
-
 export type TeacherGroup = {
   id: string;
   name: string;
@@ -174,12 +179,15 @@ const compareRegistrations = (a: Registration, b: Registration): number => {
  * TEACHERS, danach eventuelle Alt-Zuordnungen mit unbekanntem Namen, zuletzt
  * die nicht zugewiesenen Anmeldungen.
  */
-export const groupByTeacher = (registrations: Registration[]): TeacherGroup[] => {
+export const groupByTeacher = (
+  registrations: Registration[],
+  unassignedLabel: string,
+): TeacherGroup[] => {
   const groups: TeacherGroup[] = TEACHERS.map((name) => ({ id: name, name, registrations: [] }));
   const groupsByName = new Map(groups.map((group) => [group.name, group]));
   const unassigned: TeacherGroup = {
     id: UNASSIGNED_GROUP_ID,
-    name: UNASSIGNED_GROUP_LABEL,
+    name: unassignedLabel,
     registrations: [],
   };
   // Namen, die nicht mehr in TEACHERS stehen, bekommen eine eigene Gruppe,
@@ -213,23 +221,30 @@ export const getFullName = (registration: Registration): string =>
 
 export const isWeekend = (day: Date): boolean => day.getDay() === 0 || day.getDay() === 6;
 
+/** Tag und Monat – in beiden Sprachen numerisch, damit die Spalten schmal bleiben. */
 export const formatDayNumber = (day: Date): string => format(day, 'd.M.');
 
-export const formatWeekday = (day: Date): string => format(day, 'EEEEEE', { locale: de });
+export const formatWeekday = (day: Date, labels: OverviewLabels): string =>
+  format(day, 'EEEEEE', { locale: labels.dateLocale });
 
-export const formatDate = (day: Date): string => format(day, 'dd.MM.yyyy');
+export const formatDate = (day: Date, labels: OverviewLabels): string =>
+  format(day, labels.dateFormat, { locale: labels.dateLocale });
 
-export const formatStayRange = (segment: StaySegment): string =>
-  `${formatDate(segment.start)} – ${formatDate(segment.end)}`;
+export const formatStayRange = (segment: StaySegment, labels: OverviewLabels): string =>
+  `${formatDate(segment.start, labels)} – ${formatDate(segment.end, labels)}`;
 
-export const buildOverviewTitle = (days: Date[]): string => {
-  if (days.length === 0) return 'Schüler-Übersicht nach Lehrer';
-  return `Schüler-Übersicht nach Lehrer ${formatDate(days[0])} – ${formatDate(days[days.length - 1])}`;
+export const buildOverviewTitle = (days: Date[], labels: OverviewLabels): string => {
+  if (days.length === 0) return labels.title;
+  return `${labels.title} ${formatDate(days[0], labels)} – ${formatDate(days[days.length - 1], labels)}`;
 };
 
-export const buildOverviewFileName = (days: Date[], extension: string): string => {
-  if (days.length === 0) return `lehrer-uebersicht.${extension}`;
+export const buildOverviewFileName = (
+  days: Date[],
+  extension: string,
+  labels: OverviewLabels,
+): string => {
+  if (days.length === 0) return `${labels.fileBaseName}.${extension}`;
   const from = format(days[0], 'yyyy-MM-dd');
   const to = format(days[days.length - 1], 'yyyy-MM-dd');
-  return `lehrer-uebersicht-${from}_${to}.${extension}`;
+  return `${labels.fileBaseName}-${from}_${to}.${extension}`;
 };
