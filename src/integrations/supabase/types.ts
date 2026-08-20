@@ -101,7 +101,15 @@ export type Database = {
           old_value?: string | null
           registration_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "registration_changes_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: false
+            referencedRelation: "registrations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       registrations: {
         Row: {
