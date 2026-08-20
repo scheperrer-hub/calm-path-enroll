@@ -2,6 +2,9 @@ import writeXlsxFile, { type Row, type SheetData } from 'write-excel-file/browse
 import {
   COURSE_DEFINITIONS,
   COURSE_KEYS,
+  GROUP_ROW_BACKGROUND,
+  GROUP_ROW_TEXT,
+  OverviewLabels,
   TeacherGroup,
   buildOverviewFileName,
   buildOverviewTitle,
@@ -18,23 +21,19 @@ const INFO_COLUMN_COUNT = 3;
 
 const COLOR_HEADER_BG = '#F2EAE0';
 const COLOR_HEADER_BG_WEEKEND = '#E7DBCB';
-const COLOR_GROUP_BG = '#3A3330';
-const COLOR_GROUP_TEXT = '#FFFFFF';
 const COLOR_GRID = '#D9D2C7';
 const COLOR_WEEKEND_BG = '#F6F2EC';
 const COLOR_MUTED_TEXT = '#6B625B';
 
-const legendText = COURSE_KEYS.map((key) => {
-  const definition = COURSE_DEFINITIONS[key];
-  return `${definition.code} = ${definition.label}`;
-}).join('   ·   ');
+const buildLegend = (labels: OverviewLabels) =>
+  COURSE_KEYS.map((key) => `${labels.courseCodes[key]} = ${labels.courseNames[key]}`).join('   ·   ');
 
-const buildHeaderRow = (days: Date[]): Row => [
-  { value: 'Zi.Nr.', fontWeight: 'bold', align: 'center', alignVertical: 'center', wrap: true, backgroundColor: COLOR_HEADER_BG, borderColor: COLOR_GRID, borderStyle: 'thin' },
-  { value: 'Vorname Nachname', fontWeight: 'bold', alignVertical: 'center', wrap: true, backgroundColor: COLOR_HEADER_BG, borderColor: COLOR_GRID, borderStyle: 'thin' },
-  { value: 'GK/R/T', fontWeight: 'bold', align: 'center', alignVertical: 'center', wrap: true, backgroundColor: COLOR_HEADER_BG, borderColor: COLOR_GRID, borderStyle: 'thin' },
+const buildHeaderRow = (days: Date[], labels: OverviewLabels): Row => [
+  { value: labels.room, fontWeight: 'bold', align: 'center', alignVertical: 'center', wrap: true, backgroundColor: COLOR_HEADER_BG, borderColor: COLOR_GRID, borderStyle: 'thin' },
+  { value: labels.name, fontWeight: 'bold', alignVertical: 'center', wrap: true, backgroundColor: COLOR_HEADER_BG, borderColor: COLOR_GRID, borderStyle: 'thin' },
+  { value: labels.codeHeader, fontWeight: 'bold', align: 'center', alignVertical: 'center', wrap: true, backgroundColor: COLOR_HEADER_BG, borderColor: COLOR_GRID, borderStyle: 'thin' },
   ...days.map((day) => ({
-    value: `${formatWeekday(day)}\n${formatDayNumber(day)}`,
+    value: `${formatWeekday(day, labels)}\n${formatDayNumber(day)}`,
     fontWeight: 'bold' as const,
     fontSize: 9,
     align: 'center' as const,
@@ -53,21 +52,21 @@ const buildGroupRow = (group: TeacherGroup, days: Date[]): Row => [
     fontSize: 12,
     alignVertical: 'center',
     columnSpan: INFO_COLUMN_COUNT,
-    backgroundColor: COLOR_GROUP_BG,
-    textColor: COLOR_GROUP_TEXT,
+    backgroundColor: GROUP_ROW_BACKGROUND,
+    textColor: GROUP_ROW_TEXT,
   },
   ...Array.from({ length: INFO_COLUMN_COUNT - 1 }, () => null),
-  ...days.map(() => ({ backgroundColor: COLOR_GROUP_BG })),
+  ...days.map(() => ({ backgroundColor: GROUP_ROW_BACKGROUND })),
 ];
 
 const buildRegistrationRow = (
   registration: TeacherGroup['registrations'][number],
   days: Date[],
+  labels: OverviewLabels,
 ): Row => {
-  const spans = getDaySpans(registration, days);
   const colorByDayIndex = new Map<number, string>();
 
-  spans.forEach((span) => {
+  getDaySpans(registration, days).forEach((span) => {
     for (let index = span.startIndex; index <= span.endIndex; index += 1) {
       colorByDayIndex.set(index, COURSE_DEFINITIONS[span.key].color);
     }
@@ -76,7 +75,7 @@ const buildRegistrationRow = (
   return [
     { value: registration.room_number?.trim() || '', align: 'center', alignVertical: 'center', borderColor: COLOR_GRID, borderStyle: 'thin' },
     { value: getFullName(registration), alignVertical: 'center', borderColor: COLOR_GRID, borderStyle: 'thin' },
-    { value: getCourseCode(registration), align: 'center', alignVertical: 'center', borderColor: COLOR_GRID, borderStyle: 'thin' },
+    { value: getCourseCode(registration, labels), align: 'center', alignVertical: 'center', borderColor: COLOR_GRID, borderStyle: 'thin' },
     ...days.map((day, index) => {
       const color = colorByDayIndex.get(index);
       if (color) {
@@ -92,16 +91,20 @@ const buildRegistrationRow = (
   ];
 };
 
-export const buildTeacherOverviewSheet = (groups: TeacherGroup[], days: Date[]): SheetData => {
+export const buildTeacherOverviewSheet = (
+  groups: TeacherGroup[],
+  days: Date[],
+  labels: OverviewLabels,
+): SheetData => {
   const columnCount = INFO_COLUMN_COUNT + days.length;
   const spacer = Array.from({ length: columnCount - 1 }, () => null);
 
   const rows: SheetData = [
-    [{ value: buildOverviewTitle(days), fontWeight: 'bold', fontSize: 14, columnSpan: columnCount }, ...spacer],
-    [{ value: `Stand: ${formatDate(new Date())}`, fontSize: 10, textColor: COLOR_MUTED_TEXT, columnSpan: columnCount }, ...spacer],
-    [{ value: legendText, fontSize: 10, textColor: COLOR_MUTED_TEXT, columnSpan: columnCount }, ...spacer],
+    [{ value: buildOverviewTitle(days, labels), fontWeight: 'bold', fontSize: 14, columnSpan: columnCount }, ...spacer],
+    [{ value: `${labels.generatedOn}: ${formatDate(new Date(), labels)}`, fontSize: 10, textColor: COLOR_MUTED_TEXT, columnSpan: columnCount }, ...spacer],
+    [{ value: buildLegend(labels), fontSize: 10, textColor: COLOR_MUTED_TEXT, columnSpan: columnCount }, ...spacer],
     [],
-    buildHeaderRow(days),
+    buildHeaderRow(days, labels),
   ];
 
   groups.forEach((group) => {
@@ -109,14 +112,14 @@ export const buildTeacherOverviewSheet = (groups: TeacherGroup[], days: Date[]):
 
     if (group.registrations.length === 0) {
       rows.push([
-        { value: 'Keine Schüler zugeordnet', fontStyle: 'italic', textColor: COLOR_MUTED_TEXT, columnSpan: columnCount },
+        { value: labels.noStudents, fontStyle: 'italic', textColor: COLOR_MUTED_TEXT, columnSpan: columnCount },
         ...spacer,
       ]);
       return;
     }
 
     group.registrations.forEach((registration) => {
-      rows.push(buildRegistrationRow(registration, days));
+      rows.push(buildRegistrationRow(registration, days, labels));
     });
   });
 
@@ -130,13 +133,17 @@ export const buildTeacherOverviewColumns = (days: Date[]) => [
   ...days.map(() => ({ width: 5 })),
 ];
 
-export const downloadTeacherOverviewExcel = async (groups: TeacherGroup[], days: Date[]) => {
-  await writeXlsxFile(buildTeacherOverviewSheet(groups, days), {
-    sheet: 'Lehrer-Übersicht',
+export const downloadTeacherOverviewExcel = async (
+  groups: TeacherGroup[],
+  days: Date[],
+  labels: OverviewLabels,
+) => {
+  await writeXlsxFile(buildTeacherOverviewSheet(groups, days, labels), {
+    sheet: labels.sheetName,
     columns: buildTeacherOverviewColumns(days),
     orientation: 'landscape',
     stickyRowsCount: 5,
     stickyColumnsCount: INFO_COLUMN_COUNT,
     showGridLines: false,
-  }).toFile(buildOverviewFileName(days, 'xlsx'));
+  }).toFile(buildOverviewFileName(days, 'xlsx', labels));
 };

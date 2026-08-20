@@ -18,15 +18,18 @@ import {
   getOverviewDays,
   groupByTeacher,
 } from '@/utils/teacherOverview';
+import { buildOverviewLabels } from '@/utils/teacherOverviewLabels';
 import { TEACHERS } from '@/utils/teachers';
 
 export default function TeacherOverview() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [teacherFilter, setTeacherFilter] = useState('all');
   const [includeArchived, setIncludeArchived] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
   const days = useMemo(() => getOverviewDays(), []);
+  // Die Exporte erscheinen in derselben Sprache wie die Oberfläche.
+  const labels = useMemo(() => buildOverviewLabels(t, i18n.language), [t, i18n.language]);
 
   const { data: registrations, isLoading } = useQuery({
     queryKey: ['registrations', 'teacher-overview', includeArchived],
@@ -42,7 +45,10 @@ export default function TeacherOverview() {
     },
   });
 
-  const groups = useMemo(() => groupByTeacher(registrations ?? []), [registrations]);
+  const groups = useMemo(
+    () => groupByTeacher(registrations ?? [], labels.unassigned),
+    [registrations, labels.unassigned],
+  );
 
   const visibleGroups = useMemo(
     () => (teacherFilter === 'all' ? groups : groups.filter((group) => group.id === teacherFilter)),
@@ -58,10 +64,10 @@ export default function TeacherOverview() {
       // im Haupt-Bundle landen.
       if (kind === 'excel') {
         const { downloadTeacherOverviewExcel } = await import('@/utils/teacherOverviewExcel');
-        await downloadTeacherOverviewExcel(visibleGroups, days);
+        await downloadTeacherOverviewExcel(visibleGroups, days, labels);
       } else {
         const { downloadTeacherOverviewPdf } = await import('@/utils/teacherOverviewPdf');
-        downloadTeacherOverviewPdf(visibleGroups, days);
+        downloadTeacherOverviewPdf(visibleGroups, days, labels);
       }
     } catch (error) {
       console.error(error);
@@ -79,7 +85,8 @@ export default function TeacherOverview() {
             {t('admin.teacherOverview.title')}
           </h1>
           <p className="text-muted-foreground">
-            {days.length > 0 && `${formatDate(days[0])} – ${formatDate(days[days.length - 1])} · `}
+            {days.length > 0 &&
+              `${formatDate(days[0], labels)} – ${formatDate(days[days.length - 1], labels)} · `}
             {visibleCount} {t('admin.teacherOverview.students')}
           </p>
         </div>
@@ -149,7 +156,7 @@ export default function TeacherOverview() {
                 className="w-4 h-3 rounded-sm"
                 style={{ backgroundColor: COURSE_DEFINITIONS[key].color }}
               />
-              {COURSE_DEFINITIONS[key].code} = {COURSE_DEFINITIONS[key].label}
+              {labels.courseCodes[key]} = {labels.courseNames[key]}
             </div>
           ))}
         </div>
@@ -160,7 +167,7 @@ export default function TeacherOverview() {
           {t('common.loading')}
         </div>
       ) : (
-        <TeacherOverviewTable groups={visibleGroups} days={days} />
+        <TeacherOverviewTable groups={visibleGroups} days={days} labels={labels} />
       )}
 
       <p className="text-xs text-muted-foreground mt-4 flex items-center gap-2">

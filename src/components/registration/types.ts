@@ -80,3 +80,11 @@ export const initialFormData: RegistrationFormData = {
 // Date constraints for the retreat 2026
 export const COURSE_DATE_MIN = '2026-08-18';
 export const COURSE_DATE_MAX = '2026-09-03';
+
+/**
+ * Liegt ein Datum im Kurszeitraum? ISO-Daten (YYYY-MM-DD) lassen sich direkt
+ * als Zeichenkette vergleichen. Nötig, weil die min/max-Attribute am
+ * Datumsfeld nur ein Hinweis sind und mobil nicht durchgesetzt werden.
+ */
+export const isWithinCourseRange = (isoDate: string): boolean =>
+  Boolean(isoDate) && isoDate >= COURSE_DATE_MIN && isoDate <= COURSE_DATE_MAX;

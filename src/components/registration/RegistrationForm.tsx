@@ -7,7 +7,13 @@ import { AddressAutocomplete } from './AddressAutocomplete';
 import { Step3Experience } from './Step3Experience';
 import { Step4Course } from './Step4Course';
 import { Step5Review } from './Step5Review';
-import { RegistrationFormData, initialFormData } from './types';
+import {
+  RegistrationFormData,
+  initialFormData,
+  COURSE_DATE_MIN,
+  COURSE_DATE_MAX,
+  isWithinCourseRange,
+} from './types';
 import { ArrowLeft, ArrowRight, Send, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,6 +23,8 @@ import { isValidPhoneNumber } from 'libphonenumber-js';
 const WEBHOOK_URL = 'https://hook.eu2.make.com/rqeqqhh7jo48n96fq5p42zshvnax2fku';
 
 const STORAGE_KEY = 'vipassana-registration-draft';
+
+const formatCourseDate = (isoDate: string) => isoDate.split('-').reverse().join('.');
 
 export function RegistrationForm() {
   const { t } = useTranslation();
@@ -92,12 +100,36 @@ export function RegistrationForm() {
       }
     } else if (step === 3) {
       if (!formData.courseType) newErrors.courseType = t('registration.validation.selectCourse');
-      if (formData.courseType === 'basic_course' && !formData.startDateBasic) newErrors.startDateBasic = t('registration.validation.startDateRequired');
-      if (formData.courseType === 'retreat' && !formData.startDateRetreat) newErrors.startDateRetreat = t('registration.validation.startDateRequired');
-      if (formData.courseType === 'few_days') {
-        if (!formData.startDateFew) newErrors.startDateFew = t('registration.validation.startDateRequired');
-        if (!formData.endDateFew) newErrors.endDateFew = t('registration.validation.endDateRequired');
-      }
+
+      // Die min/max-Attribute am Datumsfeld sind nur ein Hinweis und werden
+      // besonders auf Mobilgeräten nicht durchgesetzt – deshalb hier prüfen.
+      const rangeMessage = t('registration.validation.dateOutOfRange', {
+        from: formatCourseDate(COURSE_DATE_MIN),
+        to: formatCourseDate(COURSE_DATE_MAX),
+      });
+
+      const checkCourseDates = (startField: string, endField: string) => {
+        const start = formData[startField as keyof RegistrationFormData] as string;
+        const end = formData[endField as keyof RegistrationFormData] as string;
+
+        if (!start) {
+          newErrors[startField] = t('registration.validation.startDateRequired');
+        } else if (!isWithinCourseRange(start)) {
+          newErrors[startField] = rangeMessage;
+        }
+
+        if (!end) {
+          newErrors[endField] = t('registration.validation.endDateRequired');
+        } else if (!isWithinCourseRange(end)) {
+          newErrors[endField] = rangeMessage;
+        } else if (start && end < start) {
+          newErrors[endField] = t('registration.validation.endDateAfterStart');
+        }
+      };
+
+      if (formData.courseType === 'basic_course') checkCourseDates('startDateBasic', 'endDateBasic');
+      if (formData.courseType === 'retreat') checkCourseDates('startDateRetreat', 'endDateRetreat');
+      if (formData.courseType === 'few_days') checkCourseDates('startDateFew', 'endDateFew');
     } else if (step === 4) {
       if (!formData.privacyConsent) newErrors.privacyConsent = t('registration.validation.privacyRequired');
     }
@@ -115,6 +147,10 @@ export function RegistrationForm() {
   const handleBack = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
 
   const handleSubmit = async () => {
+    if (!validateStep(3)) {
+      setCurrentStep(3);
+      return;
+    }
     if (!validateStep(4)) return;
     setIsSubmitting(true);
 

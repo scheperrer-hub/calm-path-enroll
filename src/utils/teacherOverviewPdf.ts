@@ -2,6 +2,9 @@ import { jsPDF } from 'jspdf';
 import {
   COURSE_DEFINITIONS,
   COURSE_KEYS,
+  GROUP_ROW_BACKGROUND,
+  GROUP_ROW_TEXT,
+  OverviewLabels,
   TeacherGroup,
   buildOverviewFileName,
   buildOverviewTitle,
@@ -30,8 +33,8 @@ const COLOR_MUTED: Rgb = [122, 112, 104];
 const COLOR_GRID: Rgb = [214, 206, 196];
 const COLOR_HEADER_BG: Rgb = [242, 234, 224];
 const COLOR_WEEKEND_BG: Rgb = [246, 242, 236];
-const COLOR_GROUP_BG: Rgb = [58, 51, 48];
-const COLOR_WHITE: Rgb = [255, 255, 255];
+const COLOR_GROUP_BG: Rgb = hexToRgb(GROUP_ROW_BACKGROUND);
+const COLOR_GROUP_TEXT: Rgb = hexToRgb(GROUP_ROW_TEXT);
 
 const PAGE_MARGIN = 10;
 const ROOM_WIDTH = 16;
@@ -53,7 +56,11 @@ const truncate = (doc: jsPDF, text: string, maxWidth: number): string => {
   return `${truncated}…`;
 };
 
-export const buildTeacherOverviewPdf = (groups: TeacherGroup[], days: Date[]): jsPDF => {
+export const buildTeacherOverviewPdf = (
+  groups: TeacherGroup[],
+  days: Date[],
+  labels: OverviewLabels,
+): jsPDF => {
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
@@ -66,22 +73,21 @@ export const buildTeacherOverviewPdf = (groups: TeacherGroup[], days: Date[]): j
     doc.setTextColor(...COLOR_TEXT);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(14);
-    doc.text(buildOverviewTitle(days), PAGE_MARGIN, PAGE_MARGIN + 5);
+    doc.text(buildOverviewTitle(days, labels), PAGE_MARGIN, PAGE_MARGIN + 5);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
     doc.setTextColor(...COLOR_MUTED);
-    doc.text(`Stand: ${formatDate(new Date())}`, PAGE_MARGIN, PAGE_MARGIN + 10.5);
+    doc.text(`${labels.generatedOn}: ${formatDate(new Date(), labels)}`, PAGE_MARGIN, PAGE_MARGIN + 10.5);
 
     // Legende
     let legendX = PAGE_MARGIN;
     const legendY = PAGE_MARGIN + 15;
     COURSE_KEYS.forEach((key) => {
-      const definition = COURSE_DEFINITIONS[key];
-      doc.setFillColor(...hexToRgb(definition.color));
+      doc.setFillColor(...hexToRgb(COURSE_DEFINITIONS[key].color));
       doc.roundedRect(legendX, legendY - 2.6, 3.4, 3.4, 0.6, 0.6, 'F');
 
-      const label = `${definition.code} = ${definition.label}`;
+      const label = `${labels.courseCodes[key]} = ${labels.courseNames[key]}`;
       doc.setTextColor(...COLOR_MUTED);
       doc.text(label, legendX + 4.6, legendY);
       legendX += 4.6 + doc.getTextWidth(label) + 8;
@@ -101,9 +107,9 @@ export const buildTeacherOverviewPdf = (groups: TeacherGroup[], days: Date[]): j
     doc.setTextColor(...COLOR_TEXT);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8);
-    doc.text('Zi.Nr.', PAGE_MARGIN + ROOM_WIDTH / 2, top + 5.6, { align: 'center' });
-    doc.text('Vorname Nachname', PAGE_MARGIN + ROOM_WIDTH + 2, top + 5.6);
-    doc.text('GK/R/T', PAGE_MARGIN + ROOM_WIDTH + NAME_WIDTH + CODE_WIDTH / 2, top + 5.6, {
+    doc.text(labels.room, PAGE_MARGIN + ROOM_WIDTH / 2, top + 5.6, { align: 'center' });
+    doc.text(labels.name, PAGE_MARGIN + ROOM_WIDTH + 2, top + 5.6);
+    doc.text(labels.codeHeader, PAGE_MARGIN + ROOM_WIDTH + NAME_WIDTH + CODE_WIDTH / 2, top + 5.6, {
       align: 'center',
     });
 
@@ -120,7 +126,7 @@ export const buildTeacherOverviewPdf = (groups: TeacherGroup[], days: Date[]): j
       doc.setTextColor(...COLOR_MUTED);
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(6.5);
-      doc.text(formatWeekday(day), x + dayWidth / 2, top + 3.6, { align: 'center' });
+      doc.text(formatWeekday(day, labels), x + dayWidth / 2, top + 3.6, { align: 'center' });
 
       doc.setTextColor(...COLOR_TEXT);
       doc.setFont('helvetica', 'bold');
@@ -172,7 +178,7 @@ export const buildTeacherOverviewPdf = (groups: TeacherGroup[], days: Date[]): j
     doc.setFillColor(...COLOR_GROUP_BG);
     doc.rect(PAGE_MARGIN, cursorY, contentWidth, GROUP_ROW_HEIGHT, 'F');
 
-    doc.setTextColor(...COLOR_WHITE);
+    doc.setTextColor(...COLOR_GROUP_TEXT);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
     doc.text(
@@ -214,7 +220,7 @@ export const buildTeacherOverviewPdf = (groups: TeacherGroup[], days: Date[]): j
       textY,
     );
     doc.text(
-      getCourseCode(registration) || '–',
+      getCourseCode(registration, labels) || '–',
       PAGE_MARGIN + ROOM_WIDTH + NAME_WIDTH + CODE_WIDTH / 2,
       textY,
       { align: 'center' },
@@ -237,7 +243,7 @@ export const buildTeacherOverviewPdf = (groups: TeacherGroup[], days: Date[]): j
     doc.setTextColor(...COLOR_MUTED);
     doc.setFont('helvetica', 'italic');
     doc.setFontSize(10);
-    doc.text('Keine Anmeldungen im gewählten Filter.', PAGE_MARGIN, cursorY + 8);
+    doc.text(labels.noRegistrations, PAGE_MARGIN, cursorY + 8);
   }
 
   groups.forEach((group) => {
@@ -248,7 +254,7 @@ export const buildTeacherOverviewPdf = (groups: TeacherGroup[], days: Date[]): j
       doc.setTextColor(...COLOR_MUTED);
       doc.setFont('helvetica', 'italic');
       doc.setFontSize(8);
-      doc.text('Keine Schüler zugeordnet', PAGE_MARGIN + 2.5, cursorY + ROW_HEIGHT / 2 + 1.2);
+      doc.text(labels.noStudents, PAGE_MARGIN + 2.5, cursorY + ROW_HEIGHT / 2 + 1.2);
       cursorY += ROW_HEIGHT;
       return;
     }
@@ -262,7 +268,7 @@ export const buildTeacherOverviewPdf = (groups: TeacherGroup[], days: Date[]): j
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     doc.setTextColor(...COLOR_MUTED);
-    doc.text(`Seite ${page} / ${pageCount}`, pageWidth - PAGE_MARGIN, pageHeight - PAGE_MARGIN + 2, {
+    doc.text(`${labels.page} ${page} / ${pageCount}`, pageWidth - PAGE_MARGIN, pageHeight - PAGE_MARGIN + 2, {
       align: 'right',
     });
   }
@@ -270,6 +276,10 @@ export const buildTeacherOverviewPdf = (groups: TeacherGroup[], days: Date[]): j
   return doc;
 };
 
-export const downloadTeacherOverviewPdf = (groups: TeacherGroup[], days: Date[]) => {
-  buildTeacherOverviewPdf(groups, days).save(buildOverviewFileName(days, 'pdf'));
+export const downloadTeacherOverviewPdf = (
+  groups: TeacherGroup[],
+  days: Date[],
+  labels: OverviewLabels,
+) => {
+  buildTeacherOverviewPdf(groups, days, labels).save(buildOverviewFileName(days, 'pdf', labels));
 };
