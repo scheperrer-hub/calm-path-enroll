@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { COURSE_DATE_MIN, COURSE_DATE_MAX, isWithinCourseRange } from '@/components/registration/types';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
@@ -31,6 +32,24 @@ interface RegistrationEditDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onDeleted?: () => void;
+}
+
+
+const formatCourseDate = (isoDate: string) => isoDate.split('-').reverse().join('.');
+
+/**
+ * Weist auf Daten außerhalb des Kurszeitraums hin, ohne das Speichern zu
+ * blockieren – Leitung und Admins sollen bewusste Ausnahmen eintragen können.
+ */
+function CourseRangeHint({ value }: { value: string | null | undefined }) {
+  if (!value || isWithinCourseRange(value)) return null;
+
+  return (
+    <p className="mt-1 text-xs text-destructive">
+      Außerhalb des Kurszeitraums ({formatCourseDate(COURSE_DATE_MIN)} –{' '}
+      {formatCourseDate(COURSE_DATE_MAX)})
+    </p>
+  );
 }
 
 export function RegistrationEditDialog({ registration, open, onOpenChange, onDeleted }: RegistrationEditDialogProps) {
@@ -273,54 +292,72 @@ export function RegistrationEditDialog({ registration, open, onOpenChange, onDel
                 <Input
                   id="start_date_basic"
                   type="date"
+                  min={COURSE_DATE_MIN}
+                  max={COURSE_DATE_MAX}
                   value={formData.start_date_basic || ''}
                   onChange={(e) => updateField('start_date_basic', e.target.value || null)}
                 />
+                <CourseRangeHint value={formData.start_date_basic} />
               </div>
               <div>
                 <Label htmlFor="end_date_basic">Ende Basiskurs</Label>
                 <Input
                   id="end_date_basic"
                   type="date"
+                  min={COURSE_DATE_MIN}
+                  max={COURSE_DATE_MAX}
                   value={formData.end_date_basic || ''}
                   onChange={(e) => updateField('end_date_basic', e.target.value || null)}
                 />
+                <CourseRangeHint value={formData.end_date_basic} />
               </div>
               <div>
                 <Label htmlFor="start_date_retreat">Start Retreat</Label>
                 <Input
                   id="start_date_retreat"
                   type="date"
+                  min={COURSE_DATE_MIN}
+                  max={COURSE_DATE_MAX}
                   value={formData.start_date_retreat || ''}
                   onChange={(e) => updateField('start_date_retreat', e.target.value || null)}
                 />
+                <CourseRangeHint value={formData.start_date_retreat} />
               </div>
               <div>
                 <Label htmlFor="end_date_retreat">Ende Retreat</Label>
                 <Input
                   id="end_date_retreat"
                   type="date"
+                  min={COURSE_DATE_MIN}
+                  max={COURSE_DATE_MAX}
                   value={formData.end_date_retreat || ''}
                   onChange={(e) => updateField('end_date_retreat', e.target.value || null)}
                 />
+                <CourseRangeHint value={formData.end_date_retreat} />
               </div>
               <div>
                 <Label htmlFor="start_date_few">Start Kurzbesuch</Label>
                 <Input
                   id="start_date_few"
                   type="date"
+                  min={COURSE_DATE_MIN}
+                  max={COURSE_DATE_MAX}
                   value={formData.start_date_few || ''}
                   onChange={(e) => updateField('start_date_few', e.target.value || null)}
                 />
+                <CourseRangeHint value={formData.start_date_few} />
               </div>
               <div>
                 <Label htmlFor="end_date_few">Ende Kurzbesuch</Label>
                 <Input
                   id="end_date_few"
                   type="date"
+                  min={COURSE_DATE_MIN}
+                  max={COURSE_DATE_MAX}
                   value={formData.end_date_few || ''}
                   onChange={(e) => updateField('end_date_few', e.target.value || null)}
                 />
+                <CourseRangeHint value={formData.end_date_few} />
               </div>
             </div>
           </div>
