@@ -4,7 +4,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { RegistrationFormData, COURSE_DATE_MIN, COURSE_DATE_MAX } from './types';
+import {
+  RegistrationFormData,
+  COURSE_DATE_MIN,
+  COURSE_DATE_MAX,
+  RETREAT_START_DATE,
+  BASIC_COURSE_DURATION_DAYS,
+  RETREAT_DURATION_DAYS,
+} from './types';
 import { cn } from '@/lib/utils';
 
 interface Step4CourseProps {
@@ -38,7 +45,7 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
     
     // Auto-fill for retreat (2026)
     if (courseType === 'retreat') {
-      updates.startDateRetreat = '2026-08-21';
+      updates.startDateRetreat = RETREAT_START_DATE;
       updates.endDateRetreat = COURSE_DATE_MAX;
     }
 
@@ -66,14 +73,14 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
   const handleBasicStartChange = (value: string) => {
     updateData({
       startDateBasic: value,
-      endDateBasic: calculateEndDate(value, 15),
+      endDateBasic: calculateEndDate(value, BASIC_COURSE_DURATION_DAYS),
     });
   };
 
   const handleRetreatStartChange = (value: string) => {
     updateData({
       startDateRetreat: value,
-      endDateRetreat: calculateEndDate(value, 12),
+      endDateRetreat: calculateEndDate(value, RETREAT_DURATION_DAYS),
     });
   };
 

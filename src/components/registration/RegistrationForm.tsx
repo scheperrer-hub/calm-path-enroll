@@ -19,6 +19,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { isValidPhoneNumber } from 'libphonenumber-js';
+import { parseDraft, serializeDraft } from './draft';
 
 const WEBHOOK_URL = 'https://hook.eu2.make.com/rqeqqhh7jo48n96fq5p42zshvnax2fku';
 
@@ -35,19 +36,20 @@ export function RegistrationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        // Merge with initial to handle new fields
-        setFormData({ ...initialFormData, ...parsed });
-      } catch {}
+    const draft = parseDraft(localStorage.getItem(STORAGE_KEY));
+
+    if (!draft) {
+      localStorage.removeItem(STORAGE_KEY);
+      return;
     }
+
+    // Mit den Startwerten mischen, damit neue Felder gesetzt sind.
+    setFormData({ ...initialFormData, ...draft });
   }, []);
 
   useEffect(() => {
     if (!isSubmitted) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+      localStorage.setItem(STORAGE_KEY, serializeDraft(formData));
     }
   }, [formData, isSubmitted]);
 
@@ -178,6 +180,7 @@ export function RegistrationForm() {
         basic_course_days: formData.hasBasicCourse && formData.basicCourseDays ? parseInt(formData.basicCourseDays) : null,
         vip_other_experience: formData.otherExperience || null,
         mother_tongue: formData.motherTongue,
+        report_language: formData.motherTongue,
         second_language: formData.secondLanguage || null,
         impairments: formData.impairments || null,
         gender: formData.gender || null,
