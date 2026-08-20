@@ -8,8 +8,6 @@ import {
   RegistrationFormData,
   COURSE_DATE_MIN,
   COURSE_DATE_MAX,
-  RETREAT_START_DATE,
-  BASIC_COURSE_DURATION_DAYS,
   RETREAT_DURATION_DAYS,
 } from './types';
 import { cn } from '@/lib/utils';
@@ -21,6 +19,9 @@ interface Step4CourseProps {
 }
 
 type CourseType = 'basic_course' | 'retreat' | 'few_days';
+
+const formatCourseDate = (isoDate: string) => isoDate.split('-').reverse().join('.');
+const COURSE_RANGE_LABEL = `${formatCourseDate(COURSE_DATE_MIN)} - ${formatCourseDate(COURSE_DATE_MAX)}`;
 
 export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
   const { t } = useTranslation();
@@ -37,17 +38,13 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
       endDateFew: '',
     };
 
-    // Auto-fill for basic course (2026)
+    // Der Grundkurs läuft immer über den gesamten Kurszeitraum.
     if (courseType === 'basic_course') {
       updates.startDateBasic = COURSE_DATE_MIN;
       updates.endDateBasic = COURSE_DATE_MAX;
     }
-    
-    // Auto-fill for retreat (2026)
-    if (courseType === 'retreat') {
-      updates.startDateRetreat = RETREAT_START_DATE;
-      updates.endDateRetreat = COURSE_DATE_MAX;
-    }
+
+    // Das Retreat hat keinen festen Anreisetag – den wählt der Schüler.
 
     updateData(updates);
   };
@@ -70,16 +67,10 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
     }
   };
 
-  const handleBasicStartChange = (value: string) => {
-    updateData({
-      startDateBasic: value,
-      endDateBasic: calculateEndDate(value, BASIC_COURSE_DURATION_DAYS),
-    });
-  };
-
   const handleRetreatStartChange = (value: string) => {
     updateData({
       startDateRetreat: value,
+      // Regeldauer als Vorschlag; der Schüler kann das Ende danach vorziehen.
       endDateRetreat: calculateEndDate(value, RETREAT_DURATION_DAYS),
     });
   };
@@ -159,29 +150,24 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
             {t('registration.step4.basicCourse')}
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
-            {t('registration.step4.dateRange')}: 18.08.2026 - 03.09.2026
+            {t('registration.step4.dateRange')}: {COURSE_RANGE_LABEL}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="startDateBasic" className="form-label">
-                {t('registration.step4.startDate')} *
+                {t('registration.step4.startDate')}
               </Label>
               <Input
                 id="startDateBasic"
                 type="date"
-                min={COURSE_DATE_MIN}
-                max={COURSE_DATE_MAX}
                 value={data.startDateBasic}
-                onChange={(e) => handleBasicStartChange(e.target.value)}
-                className={`input-field ${errors.startDateBasic ? 'border-destructive' : ''}`}
+                readOnly
+                className="input-field bg-muted cursor-not-allowed"
               />
-              {errors.startDateBasic && (
-                <p className="text-sm text-destructive">{errors.startDateBasic}</p>
-              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="endDateBasic" className="form-label">
-                {t('registration.step4.endDateCalculated')}
+                {t('registration.step4.endDate')}
               </Label>
               <Input
                 id="endDateBasic"
@@ -201,7 +187,7 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
             {t('registration.step4.retreat')}
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
-            {t('registration.step4.dateRange')}: 18.08.2026 - 03.09.2026
+            {t('registration.step4.dateRange')}: {COURSE_RANGE_LABEL}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -223,15 +209,24 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="endDateRetreat" className="form-label">
-                {t('registration.step4.endDateCalculated')}
+                {t('registration.step4.endDate')} *
               </Label>
               <Input
                 id="endDateRetreat"
                 type="date"
+                min={data.startDateRetreat || COURSE_DATE_MIN}
+                max={COURSE_DATE_MAX}
                 value={data.endDateRetreat}
-                readOnly
-                className="input-field bg-muted cursor-not-allowed"
+                onChange={(e) => updateData({ endDateRetreat: e.target.value })}
+                className={`input-field ${errors.endDateRetreat ? 'border-destructive' : ''}`}
               />
+              {errors.endDateRetreat ? (
+                <p className="text-sm text-destructive">{errors.endDateRetreat}</p>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  {t('registration.step4.retreatDurationHint', { days: RETREAT_DURATION_DAYS })}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -243,7 +238,7 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
             {t('registration.step4.fewDays')}
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
-            {t('registration.step4.dateRange')}: 18.08.2026 - 03.09.2026
+            {t('registration.step4.dateRange')}: {COURSE_RANGE_LABEL}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">

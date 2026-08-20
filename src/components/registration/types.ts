@@ -1,5 +1,3 @@
-import { differenceInCalendarDays, parseISO } from 'date-fns';
-
 export interface RegistrationFormData {
   // Step 1 - Person
   firstName: string;
@@ -27,6 +25,7 @@ export interface RegistrationFormData {
   basicCourseDays: string;
   otherExperience: string;
   motherTongue: 'de' | 'en' | 'fr';
+  reportLanguage: 'de' | 'en' | 'fr' | '';
   secondLanguage: 'de' | 'en' | 'fr' | '';
   impairments: string;
 
@@ -66,6 +65,7 @@ export const initialFormData: RegistrationFormData = {
   basicCourseDays: '',
   otherExperience: '',
   motherTongue: 'de',
+  reportLanguage: '',
   secondLanguage: '',
   impairments: '',
   courseType: '',
@@ -79,23 +79,19 @@ export const initialFormData: RegistrationFormData = {
   privacyConsent: false,
 };
 
-// Date constraints for the retreat 2026
-export const COURSE_DATE_MIN = '2026-08-18';
+/**
+ * Kurszeitraum für Schüler. Lehrer und Helfer reisen bereits am 18.8. an,
+ * für Anmeldungen zählt aber erst der 19.8.
+ */
+export const COURSE_DATE_MIN = '2026-08-19';
 export const COURSE_DATE_MAX = '2026-09-03';
 
-/** Regel-Anreisetag des Retreats. */
-export const RETREAT_START_DATE = '2026-08-21';
-
-const daysUntilCourseEnd = (from: string): number =>
-  differenceInCalendarDays(parseISO(COURSE_DATE_MAX), parseISO(from));
-
 /**
- * Regeldauer ab Anreise, aus dem Kurszeitraum abgeleitet statt fest eingetragen.
- * Dadurch endet die Standard-Anreise immer exakt auf COURSE_DATE_MAX – vorher
- * standen hier feste Zahlen, die einen Tag daneben lagen.
+ * Regeldauer des Retreats ab dem gewählten Anreisetag. Einen festen
+ * Anreisetag gibt es nicht – der Schüler wählt ihn selbst und kann die
+ * Dauer anschließend verkürzen.
  */
-export const BASIC_COURSE_DURATION_DAYS = daysUntilCourseEnd(COURSE_DATE_MIN);
-export const RETREAT_DURATION_DAYS = daysUntilCourseEnd(RETREAT_START_DATE);
+export const RETREAT_DURATION_DAYS = 13;
 
 /**
  * Liegt ein Datum im Kurszeitraum? ISO-Daten (YYYY-MM-DD) lassen sich direkt

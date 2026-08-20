@@ -1,13 +1,17 @@
 import { addDays, differenceInCalendarDays, format, parseISO } from 'date-fns';
 import type { Locale } from 'date-fns';
 import { Tables } from '@/integrations/supabase/types';
+import { COURSE_DATE_MIN, COURSE_DATE_MAX } from '@/components/registration/types';
 import { TEACHERS } from './teachers';
 
 export type Registration = Tables<'registrations'>;
 
-/** Kalender-Zeitraum der Übersicht, beide Tage inklusive. */
-export const OVERVIEW_START = '2026-08-19';
-export const OVERVIEW_END = '2026-09-03';
+/**
+ * Kalender-Zeitraum der Übersicht, beide Tage inklusive. Bewusst an den
+ * Kurszeitraum der Anmeldung gekoppelt, damit beide nicht auseinanderlaufen.
+ */
+export const OVERVIEW_START = COURSE_DATE_MIN;
+export const OVERVIEW_END = COURSE_DATE_MAX;
 
 export type CourseKey = 'basic' | 'retreat' | 'few';
 

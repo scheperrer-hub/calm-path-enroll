@@ -178,6 +178,35 @@ export function Step3Experience({ data, updateData, errors }: Step3ExperiencePro
         </Select>
       </div>
 
+      {/* Report Language */}
+      <div className="space-y-2">
+        <Label htmlFor="reportLanguage" className="form-label">
+          {t('registration.step3.reportLanguage')} *
+        </Label>
+        <p className="text-sm text-muted-foreground mb-2">
+          {t('registration.step3.reportLanguageDescription')}
+        </p>
+        <Select
+          value={data.reportLanguage}
+          onValueChange={(value: 'de' | 'en' | 'fr') => updateData({ reportLanguage: value })}
+        >
+          <SelectTrigger
+            id="reportLanguage"
+            className={`input-field w-full md:w-[280px] ${errors.reportLanguage ? 'border-destructive' : ''}`}
+          >
+            <SelectValue placeholder={t('registration.step3.reportLanguagePlaceholder')} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="de">🇩🇪 Deutsch</SelectItem>
+            <SelectItem value="en">🇬🇧 English</SelectItem>
+            <SelectItem value="fr">🇫🇷 Français</SelectItem>
+          </SelectContent>
+        </Select>
+        {errors.reportLanguage && (
+          <p className="text-sm text-destructive">{errors.reportLanguage}</p>
+        )}
+      </div>
+
       {/* Second Language */}
       <div className="space-y-2">
         <Label htmlFor="secondLanguage" className="form-label">

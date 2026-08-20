@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TeacherOverviewTable } from '@/components/admin/TeacherOverviewTable';
+import { TeacherOverviewChangeLog } from '@/components/admin/TeacherOverviewChangeLog';
 import {
   COURSE_DEFINITIONS,
   COURSE_KEYS,
@@ -169,6 +170,8 @@ export default function TeacherOverview() {
       ) : (
         <TeacherOverviewTable groups={visibleGroups} days={days} labels={labels} />
       )}
+
+      <TeacherOverviewChangeLog />
 
       <p className="text-xs text-muted-foreground mt-4 flex items-center gap-2">
         <Info className="w-3 h-3" />
