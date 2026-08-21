@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
@@ -30,6 +30,7 @@ export default function RegistrationDetail() {
   const queryClient = useQueryClient();
   const [newNote, setNewNote] = useState('');
   const [editOpen, setEditOpen] = useState(false);
+  const [roomNumber, setRoomNumber] = useState('');
 
   const { data: registration, isLoading } = useQuery({
     queryKey: ['registration', id],
@@ -87,6 +88,18 @@ export default function RegistrationDetail() {
       toast.error(`Fehler beim Speichern: ${error.message}`);
     },
   });
+
+  // Die Zimmernummer wird erst beim Verlassen des Feldes gespeichert. Sonst
+  // erzeugt jeder Tastendruck eine Änderung – und damit einen Protokolleintrag.
+  useEffect(() => {
+    setRoomNumber(registration?.room_number ?? '');
+  }, [registration?.room_number]);
+
+  const saveRoomNumber = () => {
+    const value = roomNumber.trim();
+    if (value === (registration?.room_number ?? '')) return;
+    updateRegistration.mutate({ room_number: value || null });
+  };
 
   const addNote = useMutation({
     mutationFn: async () => {
@@ -262,8 +275,12 @@ export default function RegistrationDetail() {
               <div>
                 <Label className="text-muted-foreground">Zimmernummer</Label>
                 <Input
-                  value={registration.room_number || ''}
-                  onChange={(e) => updateRegistration.mutate({ room_number: e.target.value })}
+                  value={roomNumber}
+                  onChange={(e) => setRoomNumber(e.target.value)}
+                  onBlur={saveRoomNumber}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') e.currentTarget.blur();
+                  }}
                   placeholder="Zimmernummer eingeben"
                 />
               </div>

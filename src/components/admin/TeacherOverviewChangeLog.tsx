@@ -67,7 +67,7 @@ export function TeacherOverviewChangeLog() {
   });
 
   const formatValue = (field: string, value: string | null): string => {
-    if (!value) return '–';
+    if (value === null || value === '') return '–';
     if (isDateField(field)) {
       try {
         return format(parseISO(value), 'dd.MM.yyyy');
@@ -76,6 +76,10 @@ export function TeacherOverviewChangeLog() {
       }
     }
     if (field === 'status') return t(`admin.status.${value.replace('_', '')}`);
+    // Die Datenbank liefert Wahrheitswerte als Text.
+    if (value === 'true') return t('common.yes');
+    if (value === 'false') return t('common.no');
+    if (field === 'report_language') return value.toUpperCase();
     return value;
   };
 

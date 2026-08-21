@@ -13,8 +13,10 @@ import { TeacherOverviewChangeLog } from '@/components/admin/TeacherOverviewChan
 import {
   COURSE_DEFINITIONS,
   COURSE_KEYS,
+  INACTIVE_STATUSES,
   Registration,
   UNASSIGNED_GROUP_ID,
+  countStudents,
   formatDate,
   getOverviewDays,
   groupByTeacher,
@@ -25,7 +27,7 @@ import { TEACHERS } from '@/utils/teachers';
 export default function TeacherOverview() {
   const { t, i18n } = useTranslation();
   const [teacherFilter, setTeacherFilter] = useState('all');
-  const [includeArchived, setIncludeArchived] = useState(false);
+  const [includeInactive, setIncludeInactive] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
   const days = useMemo(() => getOverviewDays(), []);
@@ -33,11 +35,12 @@ export default function TeacherOverview() {
   const labels = useMemo(() => buildOverviewLabels(t, i18n.language), [t, i18n.language]);
 
   const { data: registrations, isLoading } = useQuery({
-    queryKey: ['registrations', 'teacher-overview', includeArchived],
+    queryKey: ['registrations', 'teacher-overview', includeInactive],
     queryFn: async (): Promise<Registration[]> => {
       let query = supabase.from('registrations').select('*');
-      if (!includeArchived) {
-        query = query.neq('status', 'archived');
+      // Erledigte und archivierte Anmeldungen sind niemand, der im Haus steht.
+      if (!includeInactive) {
+        query = query.not('status', 'in', `(${INACTIVE_STATUSES.join(',')})`);
       }
 
       const { data, error } = await query;
@@ -56,7 +59,7 @@ export default function TeacherOverview() {
     [groups, teacherFilter],
   );
 
-  const visibleCount = visibleGroups.reduce((total, group) => total + group.registrations.length, 0);
+  const visibleCount = countStudents(visibleGroups);
 
   const handleExport = async (kind: 'excel' | 'pdf') => {
     setIsExporting(true);
@@ -89,6 +92,7 @@ export default function TeacherOverview() {
             {days.length > 0 &&
               `${formatDate(days[0], labels)} – ${formatDate(days[days.length - 1], labels)} · `}
             {visibleCount} {t('admin.teacherOverview.students')}
+            {includeInactive && ` · ${t('admin.teacherOverview.inactiveIncluded')}`}
           </p>
         </div>
         <div className="flex gap-2">
@@ -141,12 +145,12 @@ export default function TeacherOverview() {
 
         <div className="flex items-center gap-2">
           <Checkbox
-            id="include-archived"
-            checked={includeArchived}
-            onCheckedChange={(checked) => setIncludeArchived(checked === true)}
+            id="include-inactive"
+            checked={includeInactive}
+            onCheckedChange={(checked) => setIncludeInactive(checked === true)}
           />
-          <Label htmlFor="include-archived" className="cursor-pointer text-sm font-normal">
-            {t('admin.teacherOverview.showArchived')}
+          <Label htmlFor="include-inactive" className="cursor-pointer text-sm font-normal">
+            {t('admin.teacherOverview.showInactive')}
           </Label>
         </div>
 

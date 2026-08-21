@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { FormStepper } from './FormStepper';
@@ -34,6 +34,31 @@ export function RegistrationForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const topRef = useRef<HTMLDivElement>(null);
+  const hasRendered = useRef(false);
+
+  /**
+   * Nach "Weiter" und "Zurück" an den Anfang des Formulars springen. Ohne das
+   * landet man auf dem Handy mitten im nächsten Schritt.
+   */
+  useEffect(() => {
+    if (!hasRendered.current) {
+      hasRendered.current = true;
+      return;
+    }
+
+    const anchor = topRef.current;
+    if (!anchor) {
+      // Nach dem Absenden steht statt des Formulars die Bestätigung da.
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // Die Kopfzeile klebt oben und würde den Anfang sonst verdecken.
+    const headerHeight = document.querySelector('header')?.getBoundingClientRect().height ?? 0;
+    const top = anchor.getBoundingClientRect().top + window.scrollY - headerHeight - 16;
+    window.scrollTo({ top: Math.max(top, 0), behavior: 'smooth' });
+  }, [currentStep, isSubmitted]);
 
   useEffect(() => {
     const draft = parseDraft(localStorage.getItem(STORAGE_KEY));
@@ -291,7 +316,7 @@ export function RegistrationForm() {
 
   if (isSubmitted) {
     return (
-      <div className="text-center py-16 animate-fade-in">
+      <div className="text-center py-16 animate-fade-in" ref={topRef}>
         <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-primary/20 flex items-center justify-center">
           <CheckCircle className="w-10 h-10 text-primary" />
         </div>
@@ -313,7 +338,7 @@ export function RegistrationForm() {
   ];
 
   return (
-    <div className="w-full">
+    <div className="w-full" ref={topRef}>
       <FormStepper currentStep={currentStep} totalSteps={5} />
       <div className="min-h-[400px]">{steps[currentStep]}</div>
       <div className="flex justify-between mt-10 pt-6 border-t border-border">

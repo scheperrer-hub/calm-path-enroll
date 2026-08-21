@@ -8,6 +8,8 @@ import {
   TeacherGroup,
   buildOverviewFileName,
   buildOverviewTitle,
+  countPresentPerDay,
+  countStudents,
   formatDate,
   formatDayNumber,
   formatWeekday,
@@ -91,6 +93,30 @@ const buildRegistrationRow = (
   ];
 };
 
+/** Zähler der Anwesenden je Tag – die letzte Zeile unter dem Kalender. */
+const buildPresentRow = (groups: TeacherGroup[], days: Date[], labels: OverviewLabels): Row => [
+  {
+    value: `${labels.present}: ${countStudents(groups)}`,
+    fontWeight: 'bold',
+    alignVertical: 'center',
+    columnSpan: INFO_COLUMN_COUNT,
+    backgroundColor: COLOR_HEADER_BG,
+    borderColor: COLOR_GRID,
+    borderStyle: 'thin',
+  },
+  ...Array.from({ length: INFO_COLUMN_COUNT - 1 }, () => null),
+  ...countPresentPerDay(groups, days).map((count, index) => ({
+    value: count,
+    type: Number,
+    fontWeight: 'bold' as const,
+    align: 'center' as const,
+    alignVertical: 'center' as const,
+    backgroundColor: isWeekend(days[index]) ? COLOR_HEADER_BG_WEEKEND : COLOR_HEADER_BG,
+    borderColor: COLOR_GRID,
+    borderStyle: 'thin' as const,
+  })),
+];
+
 export const buildTeacherOverviewSheet = (
   groups: TeacherGroup[],
   days: Date[],
@@ -122,6 +148,8 @@ export const buildTeacherOverviewSheet = (
       rows.push(buildRegistrationRow(registration, days, labels));
     });
   });
+
+  if (groups.length > 0) rows.push(buildPresentRow(groups, days, labels));
 
   return rows;
 };

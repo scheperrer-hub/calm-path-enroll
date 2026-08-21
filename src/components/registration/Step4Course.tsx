@@ -9,6 +9,7 @@ import {
   COURSE_DATE_MIN,
   COURSE_DATE_MAX,
   RETREAT_DURATION_DAYS,
+  RETREAT_DURATION_NIGHTS,
 } from './types';
 import { cn } from '@/lib/utils';
 
@@ -49,11 +50,12 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
     updateData(updates);
   };
 
+  /** Enddatum einer Dauer in Tagen – Anreise- und Abreisetag zählen beide mit. */
   const calculateEndDate = (startDate: string, days: number): string => {
     if (!startDate) return '';
     try {
       const start = parseISO(startDate);
-      let end = addDays(start, days);
+      let end = addDays(start, days - 1);
       const maxDate = parseISO(COURSE_DATE_MAX);
       
       // Ensure end date doesn't exceed max date
@@ -224,7 +226,10 @@ export function Step4Course({ data, updateData, errors }: Step4CourseProps) {
                 <p className="text-sm text-destructive">{errors.endDateRetreat}</p>
               ) : (
                 <p className="text-xs text-muted-foreground">
-                  {t('registration.step4.retreatDurationHint', { days: RETREAT_DURATION_DAYS })}
+                  {t('registration.step4.retreatDurationHint', {
+                    days: RETREAT_DURATION_DAYS,
+                    nights: RETREAT_DURATION_NIGHTS,
+                  })}
                 </p>
               )}
             </div>
