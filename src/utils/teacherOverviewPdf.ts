@@ -8,6 +8,8 @@ import {
   TeacherGroup,
   buildOverviewFileName,
   buildOverviewTitle,
+  countPresentPerDay,
+  countStudents,
   formatDate,
   formatDayNumber,
   formatWeekday,
@@ -246,6 +248,32 @@ export const buildTeacherOverviewPdf = (
     doc.text(labels.noRegistrations, PAGE_MARGIN, cursorY + 8);
   }
 
+  const drawPresentRow = () => {
+    ensureSpace(ROW_HEIGHT);
+
+    doc.setFillColor(...COLOR_HEADER_BG);
+    doc.rect(PAGE_MARGIN, cursorY, contentWidth, ROW_HEIGHT, 'F');
+
+    doc.setDrawColor(...COLOR_GRID);
+    doc.setLineWidth(0.1);
+    doc.rect(PAGE_MARGIN, cursorY, contentWidth, ROW_HEIGHT);
+
+    const textY = cursorY + ROW_HEIGHT / 2 + 1.2;
+    doc.setTextColor(...COLOR_TEXT);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.text(`${labels.present}: ${countStudents(groups)}`, PAGE_MARGIN + 2, textY);
+
+    countPresentPerDay(groups, days).forEach((count, index) => {
+      const x = dayAreaX + index * dayWidth;
+      doc.setDrawColor(...COLOR_GRID);
+      doc.line(x, cursorY, x, cursorY + ROW_HEIGHT);
+      doc.text(String(count), x + dayWidth / 2, textY, { align: 'center' });
+    });
+
+    cursorY += ROW_HEIGHT;
+  };
+
   groups.forEach((group) => {
     drawGroupHeader(group);
 
@@ -261,6 +289,9 @@ export const buildTeacherOverviewPdf = (
 
     group.registrations.forEach(drawRegistrationRow);
   });
+
+  // Zähler der Anwesenden je Tag – steht bewusst unter dem Kalender.
+  if (groups.length > 0) drawPresentRow();
 
   const pageCount = doc.getNumberOfPages();
   for (let page = 1; page <= pageCount; page += 1) {

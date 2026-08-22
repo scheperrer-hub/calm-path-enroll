@@ -30,6 +30,7 @@ export const buildOverviewLabels = (t: TFunction, language: string): OverviewLab
     fileBaseName: t('admin.teacherOverview.fileBaseName'),
     courseNames: byCourse(t, 'course'),
     courseCodes,
+    present: t('admin.teacherOverview.present'),
     dateLocale: isGerman ? de : enUS,
     // Im Englischen mit Monatsnamen, damit 19.8. nicht als 8. Tag gelesen wird.
     dateFormat: isGerman ? 'dd.MM.yyyy' : 'd MMM yyyy',

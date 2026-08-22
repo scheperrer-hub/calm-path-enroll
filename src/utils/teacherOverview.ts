@@ -56,6 +56,12 @@ export const GROUP_ROW_TEXT = '#2B2622';
 
 export const UNASSIGNED_GROUP_ID = 'unassigned';
 
+/**
+ * Status, die niemand im Haus erwartet. Sie bleiben in der Anmeldeliste
+ * sichtbar, tauchen in der Lehrer-Übersicht aber nur auf Wunsch auf.
+ */
+export const INACTIVE_STATUSES = ['done', 'archived'] as const;
+
 /** Alle sprachabhängigen Texte der Übersicht und ihrer Exporte. */
 export type OverviewLabels = {
   title: string;
@@ -71,6 +77,8 @@ export type OverviewLabels = {
   fileBaseName: string;
   courseNames: Record<CourseKey, string>;
   courseCodes: Record<CourseKey, string>;
+  /** Beschriftung der Zählzeile unter dem Kalender. */
+  present: string;
   dateLocale: Locale;
   dateFormat: string;
 };
@@ -228,6 +236,13 @@ export const isWeekend = (day: Date): boolean => day.getDay() === 0 || day.getDa
 /** Tag und Monat – in beiden Sprachen numerisch, damit die Spalten schmal bleiben. */
 export const formatDayNumber = (day: Date): string => format(day, 'd.M.');
 
+/** Nur der Tag im Monat – für sehr schmale Spalten auf dem Handy. */
+export const formatDayOfMonth = (day: Date): string => format(day, 'd');
+
+/** Erster Tag eines Monats innerhalb des Zeitraums – markiert den Monatswechsel. */
+export const isMonthStart = (day: Date, index: number, days: Date[]): boolean =>
+  index === 0 || days[index - 1].getMonth() !== day.getMonth();
+
 export const formatWeekday = (day: Date, labels: OverviewLabels): string =>
   format(day, 'EEEEEE', { locale: labels.dateLocale });
 
@@ -252,3 +267,28 @@ export const buildOverviewFileName = (
   const to = format(days[days.length - 1], 'yyyy-MM-dd');
   return `${labels.fileBaseName}-${from}_${to}.${extension}`;
 };
+
+/** Anwesende je Tag – ein Schüler zählt an jedem Tag seines Aufenthalts einmal. */
+export const countPresentPerDay = (groups: TeacherGroup[], days: Date[]): number[] => {
+  const counts = days.map(() => 0);
+
+  groups.forEach((group) => {
+    group.registrations.forEach((registration) => {
+      const present = new Set<number>();
+      getDaySpans(registration, days).forEach((span) => {
+        for (let index = span.startIndex; index <= span.endIndex; index += 1) {
+          present.add(index);
+        }
+      });
+      present.forEach((index) => {
+        counts[index] += 1;
+      });
+    });
+  });
+
+  return counts;
+};
+
+/** Gesamtzahl der Schüler über alle sichtbaren Gruppen. */
+export const countStudents = (groups: TeacherGroup[]): number =>
+  groups.reduce((total, group) => total + group.registrations.length, 0);

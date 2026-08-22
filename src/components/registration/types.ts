@@ -93,6 +93,9 @@ export const COURSE_DATE_MAX = '2026-09-03';
  */
 export const RETREAT_DURATION_DAYS = 13;
 
+/** Nächte der Regeldauer – An- und Abreisetag zählen als ein Tag mehr. */
+export const RETREAT_DURATION_NIGHTS = RETREAT_DURATION_DAYS - 1;
+
 /**
  * Liegt ein Datum im Kurszeitraum? ISO-Daten (YYYY-MM-DD) lassen sich direkt
  * als Zeichenkette vergleichen. Nötig, weil die min/max-Attribute am
